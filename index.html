@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hardware Price Lookup</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+    h2 { text-align: center; color: #111; }
+    
+    .search-container { margin-bottom: 20px; }
+    input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 10px;
+      font-size: 18px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    
+    .item {
+      display: flex;
+      justify-content: space-between;
+      background: white;
+      padding: 15px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      font-size: 18px;
+    }
+    .item strong { color: #28a745; }
+
+    /* Hide the admin panel by default */
+    .admin-panel {
+      display: none; 
+      background: white;
+      padding: 20px;
+      margin-top: 40px;
+      border-radius: 8px;
+      border-top: 4px solid #007aff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .admin-panel h3 { margin-top: 0; color: #007aff; }
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #007aff;
+      color: white;
+      border: none;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    
+    /* Secret lock button */
+    .secret-lock {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 24px;
+      opacity: 0.2;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Price Lookup</h2>
+  
+  <div class="search-container">
+    <input type="text" id="searchBar" placeholder="🔍 Search item name..." onkeyup="searchItems()">
+  </div>
+
+  <div id="resultsList"></div>
+
+  <!-- This is the hidden owner section -->
+  <div class="admin-panel" id="adminPanel">
+    <h3>Owner: Update Price</h3>
+    <input type="text" id="itemName" placeholder="Item Name (e.g., Basin Tap)">
+    <input type="number" id="itemPrice" placeholder="Price (₹)">
+    <button id="saveBtn" onclick="saveItem()">Save Price</button>
+  </div>
+
+  <!-- The secret button to unlock the owner section -->
+  <div class="secret-lock" onclick="checkPin()">🔒</div>
+
+  <script>
+    // Your specific Google Web App URL is correctly inserted here
+    const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
+    
+    // Set your secret PIN here
+    const ADMIN_PIN = "1234"; 
+    
+    let inventory = {};
+
+    async function loadItems() {
+      const results = document.getElementById('resultsList');
+      results.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">Loading prices...</div>';
+      
+      try {
+        const response = await fetch(API_URL);
+        inventory = await response.json();
+        displayItems();
+      } catch (error) {
+        results.innerHTML = '<div style="text-align:center; color:red; padding:20px;">Error loading. Check internet.</div>';
+      }
+    }
+
+    function displayItems(filter = '') {
+      const results = document.getElementById('resultsList');
+      results.innerHTML = '';
+      
+      for (let item in inventory) {
+        if (item.toLowerCase().includes(filter.toLowerCase())) {
+          results.innerHTML += `
+            <div class="item">
+              <span>${item}</span>
+              <strong>₹${inventory[item]}</strong>
+            </div>
+          `;
+        }
+      }
+      
+      if (results.innerHTML === '') {
+        results.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">No items found.</div>';
+      }
+    }
+
+    function searchItems() {
+      const query = document.getElementById('searchBar').value;
+      displayItems(query);
+    }
+
+    function checkPin() {
+      const userPin = prompt("Enter Owner PIN:");
+      if (userPin === ADMIN_PIN) {
+        document.getElementById('adminPanel').style.display = 'block';
+      } else if (userPin !== null) {
+        alert("Incorrect PIN.");
+      }
+    }
+
+    async function saveItem() {
+      const name = document.getElementById('itemName').value.trim();
+      const price = document.getElementById('itemPrice').value;
+      const btn = document.getElementById('saveBtn');
+      
+      if (name && price) {
+        btn.innerText = "Saving...";
+        btn.style.background = "#555";
+
+        try {
+          await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ itemName: name, itemPrice: price }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
+          });
+          
+          inventory[name] = price;
+          document.getElementById('itemName').value = '';
+          document.getElementById('itemPrice').value = '';
+          displayItems(document.getElementById('searchBar').value);
+          
+        } catch (error) {
+          alert("Failed to save.");
+        }
+        
+        btn.innerText = "Save Price";
+        btn.style.background = "#007aff";
+      } else {
+        alert("Please enter both a name and a price.");
+      }
+    }
+
+    loadItems();
+  </script>
+</body>
+</html>
