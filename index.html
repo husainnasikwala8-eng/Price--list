@@ -3,185 +3,555 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Hardware Price Lookup</title>
+  <title>Price Lookup</title>
   <style>
+    :root {
+      --primary: #007aff;
+      --bg: #f4f4f9;
+      --card-bg: #ffffff;
+      --text: #222222;
+      --subtext: #666666;
+      --success: #28a745;
+      --border: #e0e0e0;
+    }
+    
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      padding: 20px;
+      padding: 15px;
       max-width: 500px;
       margin: 0 auto;
-      background-color: #f4f4f9;
-      color: #333;
+      background-color: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
     }
-    h2 { text-align: center; color: #111; }
+
+    /* Header Bar */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .sync-btn {
+      background: none;
+      border: 1px solid var(--border);
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      color: var(--subtext);
+    }
+    .sync-btn:active { background-color: #eee; }
+
+    /* Category Buttons Scroll Bar */
+    .category-bar {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      white-space: nowrap;
+      -webkit-overflow-scrolling: touch;
+    }
+    .category-bar::-webkit-scrollbar { display: none; }
     
-    .search-container { margin-bottom: 20px; }
-    input[type="text"], input[type="number"] {
-      width: 100%;
-      padding: 15px;
+    .cat-btn {
+      background: #e5e5ea;
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .cat-btn.active {
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    /* Search Bar with Clear Button */
+    .search-wrapper {
+      position: relative;
       margin-bottom: 10px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 14px 40px 14px 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-sizing: border-box;
+      outline: none;
+      background-color: var(--card-bg);
+    }
+    .search-input:focus {
+      border-color: var(--primary);
+    }
+    .clear-search-btn {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #ccc;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      font-size: 12px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Status Bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--subtext);
+      margin-bottom: 10px;
+      padding: 0 4px;
+    }
+
+    /* Results List */
+    .item-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+    .item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .item-name {
+      font-size: 16px;
+      font-weight: 500;
+    }
+    .item-category-tag {
+      font-size: 12px;
+      color: var(--subtext);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .item-price {
       font-size: 18px;
+      font-weight: 700;
+      color: var(--success);
+    }
+    .highlight {
+      background-color: #ffe58f;
+      border-radius: 2px;
+    }
+
+    /* Admin Panel */
+    .admin-panel {
+      display: none; 
+      background: var(--card-bg);
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 12px;
+      border-top: 4px solid var(--primary);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    .admin-panel h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 18px;
+    }
+    .admin-input, .admin-select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 10px;
+      font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 8px;
       box-sizing: border-box;
+      background-color: #fff;
     }
-    
-    .item {
-      display: flex;
-      justify-content: space-between;
-      background: white;
-      padding: 15px;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-      font-size: 18px;
-    }
-    .item strong { color: #28a745; }
-
-    /* Hide the admin panel by default */
-    .admin-panel {
-      display: none; 
-      background: white;
-      padding: 20px;
-      margin-top: 40px;
-      border-radius: 8px;
-      border-top: 4px solid #007aff;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    .admin-panel h3 { margin-top: 0; color: #007aff; }
-    button {
+    .admin-save-btn {
       width: 100%;
-      padding: 15px;
-      background: #007aff;
+      padding: 14px;
+      background: var(--primary);
       color: white;
       border: none;
-      font-size: 18px;
-      font-weight: bold;
+      font-size: 16px;
+      font-weight: 700;
       border-radius: 8px;
       cursor: pointer;
     }
-    
-    /* Secret lock button */
+    .admin-save-btn:active { background: #0056b3; }
+
     .secret-lock {
       text-align: center;
       margin-top: 40px;
-      font-size: 24px;
-      opacity: 0.2;
+      font-size: 22px;
+      opacity: 0.15;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
+      padding: 10px;
     }
   </style>
 </head>
 <body>
 
-  <h2>Price Lookup</h2>
+  <div class="header">
+    <h2>Price Lookup</h2>
+    <button class="sync-btn" onclick="loadItems(true)" id="syncBtn">🔄 Sync</button>
+  </div>
   
-  <div class="search-container">
-    <input type="text" id="searchBar" placeholder="🔍 Search item name..." onkeyup="searchItems()">
+  <div class="category-bar" id="categoryBar"></div>
+
+  <div class="search-wrapper">
+    <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search item (e.g. brass tap)..." oninput="handleSearch()">
+    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">✕</button>
+  </div>
+
+  <div class="status-bar">
+    <span id="resultsCount">Loading items...</span>
+    <span id="syncStatus"></span>
   </div>
 
   <div id="resultsList"></div>
 
-  <!-- This is the hidden owner section -->
+  <!-- Hidden Admin Panel -->
   <div class="admin-panel" id="adminPanel">
-    <h3>Owner: Update Price</h3>
-    <input type="text" id="itemName" placeholder="Item Name (e.g., Basin Tap)">
-    <input type="number" id="itemPrice" placeholder="Price (₹)">
-    <button id="saveBtn" onclick="saveItem()">Save Price</button>
+    <h3>Owner: Update / Add Item</h3>
+    
+    <label style="font-size:12px; font-weight:600; color:var(--subtext);">CATEGORY</label>
+    <select id="adminCategorySelect" class="admin-select" onchange="handleAdminCategoryChange()">
+      <!-- Populated dynamically -->
+    </select>
+
+    <div id="newCategoryWrapper" style="display:none;">
+      <input type="text" id="newCategoryInput" class="admin-input" placeholder="Enter New Category Name">
+    </div>
+
+    <label style="font-size:12px; font-weight:600; color:var(--subtext);">ITEM NAME</label>
+    <input type="text" id="itemName" class="admin-input" placeholder="e.g. Basin Tap 1/2">
+
+    <label style="font-size:12px; font-weight:600; color:var(--subtext);">PRICE (₹)</label>
+    <input type="number" id="itemPrice" class="admin-input" placeholder="e.g. 280">
+
+    <button id="saveBtn" class="admin-save-btn" onclick="saveItem()">Save to Cloud</button>
   </div>
 
-  <!-- The secret button to unlock the owner section -->
   <div class="secret-lock" onclick="checkPin()">🔒</div>
 
   <script>
-    // Your specific Google Web App URL is correctly inserted here
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
-    
-    // Set your secret PIN here
-    const ADMIN_PIN = "1234"; 
-    
+    const ADMIN_PIN = "1234";
+
     let inventory = {};
+    let currentCategory = 'All';
+    let uniqueCategories = new Set();
 
-    async function loadItems() {
-      const results = document.getElementById('resultsList');
-      results.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">Loading prices...</div>';
-      
-      try {
-        const response = await fetch(API_URL);
-        inventory = await response.json();
-        displayItems();
-      } catch (error) {
-        results.innerHTML = '<div style="text-align:center; color:red; padding:20px;">Error loading. Check internet.</div>';
-      }
-    }
-
-    function displayItems(filter = '') {
-      const results = document.getElementById('resultsList');
-      results.innerHTML = '';
-      
-      for (let item in inventory) {
-        if (item.toLowerCase().includes(filter.toLowerCase())) {
-          results.innerHTML += `
-            <div class="item">
-              <span>${item}</span>
-              <strong>₹${inventory[item]}</strong>
-            </div>
-          `;
+    // 1. Initialize with Offline Cache & Background Sync
+    function init() {
+      const cached = localStorage.getItem('shop_inventory_cache');
+      if (cached) {
+        try {
+          inventory = JSON.parse(cached);
+          buildCategories();
+          displayItems();
+          document.getElementById('syncStatus').innerText = "Cached";
+        } catch (e) {
+          console.error("Cache parsing error", e);
         }
       }
+      loadItems(false);
+    }
+
+    // 2. Fetch Latest from Google Sheets
+    async function loadItems(manual = false) {
+      const syncBtn = document.getElementById('syncBtn');
+      const syncStatus = document.getElementById('syncStatus');
       
-      if (results.innerHTML === '') {
-        results.innerHTML = '<div style="text-align:center; color:#777; padding:20px;">No items found.</div>';
+      if (manual) {
+        syncBtn.innerText = "⏳ Syncing...";
+      }
+
+      try {
+        const response = await fetch(API_URL);
+        const data = await response.json();
+        
+        inventory = data;
+        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+        
+        buildCategories();
+        displayItems();
+        
+        syncStatus.innerText = "Synced";
+        if (manual) alert("Prices updated successfully from Google Sheets!");
+      } catch (error) {
+        console.error("Network sync failed:", error);
+        syncStatus.innerText = "Offline Mode";
+        if (manual) alert("Could not connect to Google Sheets. Using offline data.");
+      } finally {
+        syncBtn.innerText = "🔄 Sync";
       }
     }
 
-    function searchItems() {
-      const query = document.getElementById('searchBar').value;
-      displayItems(query);
+    // 3. Build Dynamic Categories and Populate Admin Dropdown
+    function buildCategories() {
+      uniqueCategories.clear();
+      uniqueCategories.add('All');
+
+      for (let item in inventory) {
+        if (item.includes(':')) {
+          const cat = item.split(':')[0].trim();
+          if (cat) uniqueCategories.add(cat);
+        } else {
+          uniqueCategories.add('General');
+        }
+      }
+
+      // Render Top Category Buttons
+      const catBar = document.getElementById('categoryBar');
+      catBar.innerHTML = '';
+      uniqueCategories.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = `cat-btn ${cat === currentCategory ? 'active' : ''}`;
+        btn.innerText = cat;
+        btn.onclick = () => setCategory(cat);
+        catBar.appendChild(btn);
+      });
+
+      // Render Admin Category Dropdown
+      const adminSelect = document.getElementById('adminCategorySelect');
+      adminSelect.innerHTML = '';
+      
+      uniqueCategories.forEach(cat => {
+        if (cat !== 'All') {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.innerText = cat;
+          adminSelect.appendChild(opt);
+        }
+      });
+
+      const newOpt = document.createElement('option');
+      newOpt.value = "__NEW__";
+      newOpt.innerText = "+ Add New Category...";
+      adminSelect.appendChild(newOpt);
     }
 
+    // 4. Amazon-Style Search Algorithm (Multi-word + Nearest Match Fallback)
+    function displayItems() {
+      const query = document.getElementById('searchBar').value.trim();
+      const resultsList = document.getElementById('resultsList');
+      const resultsCount = document.getElementById('resultsCount');
+      resultsList.innerHTML = '';
+
+      const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
+      let exactMatches = [];
+      let partialMatches = [];
+
+      for (let rawKey in inventory) {
+        let itemCat = "General";
+        let displayName = rawKey;
+
+        if (rawKey.includes(':')) {
+          const parts = rawKey.split(':');
+          itemCat = parts[0].trim();
+          displayName = parts.slice(1).join(':').trim();
+        }
+
+        // Category Filter
+        if (currentCategory !== 'All' && currentCategory.toLowerCase() !== itemCat.toLowerCase()) {
+          continue;
+        }
+
+        const targetText = displayName.toLowerCase();
+        const price = inventory[rawKey];
+
+        if (queryTokens.length === 0) {
+          exactMatches.push({ rawKey, displayName, itemCat, price });
+        } else {
+          // Check if ALL query words appear in the name (Order independent)
+          const allTokensMatch = queryTokens.every(token => targetText.includes(token));
+          
+          if (allTokensMatch) {
+            exactMatches.push({ rawKey, displayName, itemCat, price });
+          } else {
+            // Check if ANY word matches for "Nearest Items" suggestion
+            const matchCount = queryTokens.filter(token => targetText.includes(token)).length;
+            if (matchCount > 0) {
+              partialMatches.push({ rawKey, displayName, itemCat, price, score: matchCount });
+            }
+          }
+        }
+      }
+
+      // Sort partial matches by highest relevance
+      partialMatches.sort((a, b) => b.score - a.score);
+
+      let itemsToRender = exactMatches;
+      let isFallback = false;
+
+      if (exactMatches.length === 0 && partialMatches.length > 0) {
+        itemsToRender = partialMatches;
+        isFallback = true;
+      }
+
+      // Render Cards
+      if (itemsToRender.length === 0) {
+        resultsList.innerHTML = '<div style="text-align:center; color:#888; padding:30px;">No items found.</div>';
+        resultsCount.innerText = "0 items";
+        return;
+      }
+
+      resultsCount.innerText = isFallback 
+        ? `No exact match. Showing ${itemsToRender.length} related items:` 
+        : `${itemsToRender.length} item${itemsToRender.length === 1 ? '' : 's'}`;
+
+      itemsToRender.forEach(item => {
+        const highlightedName = highlightText(item.displayName, queryTokens);
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        card.innerHTML = `
+          <div class="item-info">
+            <span class="item-name">${highlightedName}</span>
+            <span class="item-category-tag">${item.itemCat}</span>
+          </div>
+          <div class="item-price">₹${item.price || '-'}</div>
+        `;
+        resultsList.appendChild(card);
+      });
+    }
+
+    // 5. Keyword Highlight Helper
+    function highlightText(text, tokens) {
+      if (!tokens || tokens.length === 0) return text;
+      let highlighted = text;
+      tokens.forEach(token => {
+        const regex = new RegExp(`(${escapeRegExp(token)})`, 'gi');
+        highlighted = highlighted.replace(regex, `<span class="highlight">$1</span>`);
+      });
+      return highlighted;
+    }
+
+    function escapeRegExp(string) {
+      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // 6. Search Input Controls
+    function handleSearch() {
+      const val = document.getElementById('searchBar').value;
+      document.getElementById('clearSearchBtn').style.display = val.length > 0 ? 'flex' : 'none';
+      displayItems();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('searchBar');
+      input.value = '';
+      document.getElementById('clearSearchBtn').style.display = 'none';
+      input.focus();
+      displayItems();
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      buildCategories();
+      displayItems();
+    }
+
+    // 7. Admin Panel Logic
     function checkPin() {
       const userPin = prompt("Enter Owner PIN:");
       if (userPin === ADMIN_PIN) {
         document.getElementById('adminPanel').style.display = 'block';
+        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
       } else if (userPin !== null) {
         alert("Incorrect PIN.");
       }
     }
 
-    async function saveItem() {
-      const name = document.getElementById('itemName').value.trim();
-      const price = document.getElementById('itemPrice').value;
-      const btn = document.getElementById('saveBtn');
-      
-      if (name && price) {
-        btn.innerText = "Saving...";
-        btn.style.background = "#555";
-
-        try {
-          await fetch(API_URL, {
-            method: 'POST',
-            body: JSON.stringify({ itemName: name, itemPrice: price }),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' } 
-          });
-          
-          inventory[name] = price;
-          document.getElementById('itemName').value = '';
-          document.getElementById('itemPrice').value = '';
-          displayItems(document.getElementById('searchBar').value);
-          
-        } catch (error) {
-          alert("Failed to save.");
-        }
-        
-        btn.innerText = "Save Price";
-        btn.style.background = "#007aff";
+    function handleAdminCategoryChange() {
+      const select = document.getElementById('adminCategorySelect');
+      const newWrapper = document.getElementById('newCategoryWrapper');
+      if (select.value === '__NEW__') {
+        newWrapper.style.display = 'block';
+        document.getElementById('newCategoryInput').focus();
       } else {
-        alert("Please enter both a name and a price.");
+        newWrapper.style.display = 'none';
       }
     }
 
-    loadItems();
+    async function saveItem() {
+      const select = document.getElementById('adminCategorySelect');
+      let cat = select.value;
+
+      if (cat === '__NEW__') {
+        cat = document.getElementById('newCategoryInput').value.trim();
+      }
+
+      const name = document.getElementById('itemName').value.trim();
+      const price = document.getElementById('itemPrice').value;
+      const btn = document.getElementById('saveBtn');
+
+      if (!cat || !name || !price) {
+        alert("Please complete Category, Item Name, and Price.");
+        return;
+      }
+
+      btn.innerText = "Saving to Google Sheets...";
+      btn.style.background = "#555";
+
+      const fullKey = `${cat}: ${name}`;
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ itemName: fullKey, itemPrice: price }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+
+        inventory[fullKey] = price;
+        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+
+        document.getElementById('itemName').value = '';
+        document.getElementById('itemPrice').value = '';
+        document.getElementById('newCategoryInput').value = '';
+        if (select.value === '__NEW__') {
+          select.value = cat;
+          document.getElementById('newCategoryWrapper').style.display = 'none';
+        }
+
+        buildCategories();
+        displayItems();
+        alert("Price saved successfully!");
+      } catch (error) {
+        alert("Failed to save to cloud. Check internet connection.");
+      } finally {
+        btn.innerText = "Save to Cloud";
+        btn.style.background = "var(--primary)";
+      }
+    }
+
+    // Launch Application
+    init();
   </script>
 </body>
-</html>
+  </html>
+  
