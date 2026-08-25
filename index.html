@@ -3,219 +3,159 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Price Lookup</title>
+  <title>Raj Traders POS</title>
+  
+  <!-- PART 1: MASTER ICON INTEGRATION -->
+  <!-- Link rel="icon" for standard browsers -->
+  <link rel="icon" href="icon.jpg">
+  <!-- apple-touch-icon for iOS/Android Add to Home Screen -->
+  <link rel="apple-touch-icon" href="icon.jpg">
+  <!-- Theme Color matches the blue from the icon for native feel -->
+  <meta name="theme-color" content="#1a5fb4">
+
   <style>
     :root {
-      --primary: #007aff;
-      --bg: #f4f4f9;
-      --card-bg: #ffffff;
-      --text: #222222;
-      --subtext: #666666;
-      --success: #28a745;
-      --border: #e0e0e0;
-      --danger: #dc3545;
+      --primary: #1a5fb4; --bg: #f4f4f9; --card-bg: #ffffff;
+      --text: #222222; --subtext: #666666; --success: #28a745;
+      --border: #e0e0e0; --danger: #dc3545;
     }
+    body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 500px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .header h2 { margin: 0; font-size: 22px; font-weight: 700; color:var(--primary);}
+    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); cursor:pointer; }
     
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      padding: 15px;
-      max-width: 500px;
-      margin: 0 auto;
-      background-color: var(--bg);
-      color: var(--text);
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    .header h2 { margin: 0; font-size: 22px; font-weight: 700; }
-    
-    .sync-btn {
-      background: none;
-      border: 1px solid var(--border);
-      background-color: var(--card-bg);
-      border-radius: 8px;
-      padding: 6px 12px;
-      font-size: 14px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      font-weight: 600;
-      color: var(--subtext);
-    }
-
-    .category-bar {
-      display: flex;
-      overflow-x: auto;
-      gap: 8px;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-      white-space: nowrap;
-      -webkit-overflow-scrolling: touch;
-    }
+    .category-bar { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 12px; white-space: nowrap; }
     .category-bar::-webkit-scrollbar { display: none; }
-    
-    .cat-btn {
-      background: #e5e5ea;
-      color: var(--text);
-      padding: 8px 16px;
-      border-radius: 20px;
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
-    .cat-btn.active { background: var(--primary); color: #ffffff; }
+    .cat-btn { background: #e5e5ea; padding: 8px 16px; border-radius: 20px; border: none; font-weight: 600; cursor:pointer;}
+    .cat-btn.active { background: var(--primary); color: #fff; }
 
-    .search-wrapper { position: relative; margin-bottom: 10px; }
-    .search-input {
-      width: 100%;
-      padding: 14px 40px 14px 14px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      box-sizing: border-box;
-      outline: none;
-    }
-    .search-input:focus { border-color: var(--primary); }
+    .search-input { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; }
     
-    .clear-search-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: #ccc;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .status-bar {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--subtext);
-      margin-bottom: 10px;
-      padding: 0 4px;
-    }
-
-    .item-card {
-      display: flex;
-      flex-direction: column;
-      background: var(--card-bg);
-      padding: 14px 16px;
-      margin-bottom: 8px;
-      border-radius: 10px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      border: 1px solid rgba(0,0,0,0.03);
-    }
-    
-    .item-main {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .item-info { display: flex; flex-direction: column; gap: 3px; }
+    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.03); }
+    .item-main { display: flex; justify-content: space-between; align-items: center; }
+    .item-info { display: flex; flex-direction: column; }
     .item-name { font-size: 16px; font-weight: 500; }
-    .item-category-tag { font-size: 12px; color: var(--subtext); letter-spacing: 0.5px; }
     .item-price { font-size: 18px; font-weight: 700; color: var(--success); }
-    .highlight { background-color: #ffe58f; border-radius: 2px; }
-
-    /* Admin Action Buttons (Hidden by Default) */
-    .admin-actions {
-      display: none;
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    .edit-mode .admin-actions { display: flex; }
     
-    .action-btn {
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: none;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+    .add-cart-btn { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 6px 16px; font-weight: bold; margin-left: 10px; cursor: pointer; }
+
+    /* CART & CALC FORMAT EDITION (Final UI) */
+    .floating-cart { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; border: none; cursor: pointer; }
+    
+    .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+    .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 10px; margin-bottom: 15px; }
+    
+    .customer-input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-weight:bold; }
+    
+    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+    .qty-input { width: 50px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+    
+    .cart-totals { margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
+    .totals-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; align-items: center;}
+    .math-input { width: 70px; padding: 6px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-weight:bold;}
+    .grand-total { font-size: 22px; font-weight: bold; color: var(--success); border-top: 2px solid #ddd; padding-top: 10px; margin-top: 10px; }
+    
+    /* PART 2: HUSAIN'S QR SCANNER INTEGRATION */
+    .qr-section { margin-top: 15px; text-align: center; background: #e0f0ff; padding: 15px; border-radius: 8px; }
+    .qr-label { font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
+    /* Hidden by default, toggled by checkbox */
+    .qr-image { display: none; margin-top: 15px; max-width: 100%; height: auto; border-radius: 8px; border: 2px solid var(--primary); }
+
+    .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+    .btn-action { flex: 1 1 45%; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; text-align:center;}
+    .bg-print { background: #333; }
+    .bg-wa { background: #25D366; }
+    .bg-clear { background: #dc3545; flex: 1 1 100%; }
+
+    .admin-actions { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); justify-content: flex-end; gap: 10px; }
+    .edit-mode .admin-actions { display: flex; }
+    .action-btn { padding: 6px 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
     .btn-edit { background: #e0f0ff; color: var(--primary); }
     .btn-del { background: #ffe0e0; color: var(--danger); }
 
-    .admin-panel {
-      display: none; 
-      background: var(--card-bg);
-      padding: 20px;
-      margin-top: 30px;
-      border-radius: 12px;
-      border-top: 4px solid var(--primary);
-    }
-    .admin-panel h3 { margin-top: 0; color: var(--primary); font-size: 18px; }
-    .admin-input, .admin-select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-    .admin-save-btn {
-      width: 100%;
-      padding: 14px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      font-size: 16px;
-      font-weight: 700;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+    .admin-panel { display: none; background: var(--card-bg); padding: 20px; margin-top: 30px; border-radius: 12px; border-top: 4px solid var(--primary); }
+    .admin-input, .admin-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+    .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    .secret-lock { text-align: center; margin-top: 40px; font-size: 22px; opacity: 0.15; padding: 10px; cursor: pointer; }
 
-    .secret-lock {
-      text-align: center;
-      margin-top: 40px;
-      font-size: 22px;
-      opacity: 0.15;
-      cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      padding: 10px;
+    /* PART 3: INVOICE PRINT STYLES */
+    @media print {
+      body * { visibility: hidden; }
+      .cart-modal, .cart-modal * { visibility: visible; }
+      .cart-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; padding: 0; }
+      .btn-action, .remove-btn, .action-row { display: none !important; }
+      .qty-input, .math-input, .customer-input { border: none !important; background: transparent !important; padding: 0 !important; width: auto !important; font-weight: bold; -webkit-appearance: none; }
+      .customer-input { font-size: 18px; margin-bottom: 10px; }
+      .cart-header h2::before { content: "RAJ TRADERS - INVOICE\A"; white-space: pre; font-size: 24px; display: block; text-align: center; margin-bottom: 5px; color:#1a5fb4; }
     }
   </style>
 </head>
 <body>
 
   <div class="header">
+    <!-- Updated Title to match Nashik location if needed, otherwise kept as Price Lookup -->
     <h2>Price Lookup</h2>
-    <button class="sync-btn" onclick="loadItems(true)" id="syncBtn">🔄 Sync</button>
+    <span class="sync-btn" id="syncStatus">🟢 Ready</span>
   </div>
   
   <div class="category-bar" id="categoryBar"></div>
-
-  <div class="search-wrapper">
-    <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search item (e.g. brass tap)..." oninput="handleSearch()">
-    <button class="clear-search-btn" id="clearSearchBtn" onclick="clearSearch()">✕</button>
-  </div>
-
-  <div class="status-bar">
-    <span id="resultsCount">Loading items...</span>
-    <span id="syncStatus"></span>
-  </div>
-
-  <!-- Items list gets class "edit-mode" when admin unlocks -->
+  
+  <!-- DEBOUCNED SEARCH ENGINE (Prevents keyboard lag) -->
+  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search item (e.g. brass tap)..." oninput="debounceSearch()">
+  
   <div id="resultsList"></div>
+
+  <!-- FLOATING CART BUTTON -->
+  <button class="floating-cart" onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+
+  <!-- CART & CALCULATOR MODAL -->
+  <div class="cart-modal" id="cartModal">
+    <div class="cart-header">
+      <h2>Bill Summary</h2>
+      <button onclick="toggleCart()" style="background:none; border:none; font-size:20px; font-weight:bold; cursor:pointer;">✕</button>
+    </div>
+    
+    <!-- Customer Info for Deep Linking -->
+    <input type="text" id="custName" class="customer-input" placeholder="Customer Name (for WhatsApp)">
+
+    <div id="cartItemsList"></div>
+
+    <div class="cart-totals">
+      <div class="totals-row">
+        <span>Subtotal:</span>
+        <span id="subtotalAmt">₹0.00</span>
+      </div>
+      <div class="totals-row">
+        <span>Discount (%):</span>
+        <input type="number" id="discountPct" class="math-input" value="0" min="0" max="100" oninput="updateCartTotals()">
+      </div>
+      <!-- KHATA DUE LOGIC (Final Edition) -->
+      <div class="totals-row">
+        <span>Prev Due Adjusted (+/-):</span>
+        <input type="number" id="adjustmentAmt" class="math-input" value="0" placeholder="e.g. -500" oninput="updateCartTotals()">
+      </div>
+      <div class="totals-row grand-total">
+        <span>Grand Total:</span>
+        <span id="grandTotalAmt">₹0.00</span>
+      </div>
+    </div>
+
+    <!-- PART 4: QR SCANNER TOGGLE SECTION -->
+    <div class="qr-section">
+      <label class="qr-label">
+        <input type="checkbox" id="qrToggle" onchange="toggleQR()" style="width:20px; height:20px; cursor:pointer;">
+        Show payment scanner?
+      </label>
+      <!-- Loads Husain's Scanner image from GitHub root -->
+      <img src="qr_scanner.jpg" id="qrImage" class="qr-image" alt="UPI Scanner">
+    </div>
+
+    <div class="action-row">
+      <button class="btn-action bg-print" onclick="window.print()">🖨️ Print Bill</button>
+      <button class="btn-action bg-wa" onclick="sendWhatsApp()">📲 WhatsApp Bill</button>
+      <button class="btn-action bg-clear" onclick="clearCart()">🗑️ Clear Cart</button>
+    </div>
+  </div>
 
   <div class="admin-panel" id="adminPanel">
     <h3>Add Brand New Item</h3>
@@ -231,260 +171,235 @@
   <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
 
   <script>
+    // ==========================================
+    // RAJ TRADERS POS - FINAL DEPLOYMENT SCRIPT
+    // Debugged: Fast search, local caching, WhatsApp
+    // ==========================================
+    
+    // !!! PASTE YOUR NEW DEPLOYED APPS SCRIPT URL HERE !!!
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
     const ADMIN_PIN = "1234";
 
-    let inventory = {};
-    let currentCategory = 'All';
-    let uniqueCategories = new Set();
-    let isAdmin = false;
+    // App State
+    let inventory = {}; let cart = []; let currentCategory = 'All'; let uniqueCategories = new Set();
+    let isAdmin = false; let searchTimeout;
 
+    // Initialization (Offline-First Logic)
     function init() {
+      // 1. Load instantly from phone memory (local storage)
       const cached = localStorage.getItem('shop_inventory_cache');
-      if (cached) {
-        try {
-          inventory = JSON.parse(cached);
-          buildCategories();
-          displayItems();
-          document.getElementById('syncStatus').innerText = "Cached";
-        } catch (e) { }
+      if (cached) { 
+        try { inventory = JSON.parse(cached); buildCategories(); displayItems(); } catch (e) {} 
       }
-      loadItems(false);
+      
+      // 2. Silently sync internet data in background (zero internet load on open)
+      backgroundSync();
     }
 
-    async function loadItems(manual = false) {
-      const syncBtn = document.getElementById('syncBtn');
-      if (manual) syncBtn.innerText = "⏳ Syncing...";
-
+    async function backgroundSync() {
+      const status = document.getElementById('syncStatus');
+      status.innerText = "🔄 Syncing...";
       try {
         const response = await fetch(API_URL);
-        inventory = await response.json();
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-        buildCategories();
-        displayItems();
-        document.getElementById('syncStatus').innerText = "Synced";
-        if (manual) alert("Prices updated successfully!");
-      } catch (error) {
-        document.getElementById('syncStatus').innerText = "Offline Mode";
-        if (manual) alert("Sync failed. Check internet.");
-      } finally {
-        syncBtn.innerText = "🔄 Sync";
-      }
+        const newData = await response.json();
+        
+        // 3. Only update phone memory and screen IF the internet data has actually changed
+        if (JSON.stringify(inventory) !== JSON.stringify(newData)) {
+          inventory = newData;
+          localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+          buildCategories(); displayItems();
+        }
+        status.innerText = "🟢 Live (Auto)";
+      } catch (error) { status.innerText = "🟡 Offline Mode"; }
     }
 
-    // Auto-Capitalize engine for messy formatting
+    // Helper functions
     function cleanCategory(catStr) {
       if (!catStr) return 'General';
-      catStr = catStr.trim();
+      catStr = catStr.toString().trim();
       return catStr.charAt(0).toUpperCase() + catStr.slice(1).toLowerCase();
     }
-
-    // Secure key encoding to prevent quotes from breaking HTML
+    // Simple encoding to prevent special characters in keys breaking the edit URLs
     function encodeSafe(str) { return btoa(unescape(encodeURIComponent(str))); }
     function decodeSafe(str) { return decodeURIComponent(escape(atob(str))); }
 
+    // RENDER FUNCTIONS (FAST Pace optimized)
     function buildCategories() {
-      uniqueCategories.clear();
-      uniqueCategories.add('All');
-
+      uniqueCategories.clear(); uniqueCategories.add('All');
       for (let item in inventory) {
-        if (item.includes(':')) {
-          uniqueCategories.add(cleanCategory(item.split(':')[0]));
-        } else {
-          uniqueCategories.add('General');
-        }
+        if (item.includes(':')) uniqueCategories.add(cleanCategory(item.split(':')[0]));
+        else uniqueCategories.add('General');
       }
-
-      const catBar = document.getElementById('categoryBar');
-      catBar.innerHTML = '';
+      
+      // Build Category Buttons
+      let catHtml = [];
       uniqueCategories.forEach(cat => {
-        catBar.innerHTML += `<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`;
+        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`);
       });
+      document.getElementById('categoryBar').innerHTML = catHtml.join('');
 
-      const adminSelect = document.getElementById('adminCategorySelect');
-      adminSelect.innerHTML = '';
-      uniqueCategories.forEach(cat => {
-        if (cat !== 'All') adminSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
-      });
-      adminSelect.innerHTML += `<option value="__NEW__">+ Add New Category...</option>`;
+      // Build Admin Dropdown
+      let adminHtml = [];
+      uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${cat}">${cat}</option>`); });
+      adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
+      document.getElementById('adminCategorySelect').innerHTML = adminHtml.join('');
     }
 
-    function displayItems() {
-      const query = document.getElementById('searchBar').value.trim();
-      const resultsList = document.getElementById('resultsList');
-      resultsList.innerHTML = '';
-      resultsList.className = isAdmin ? 'edit-mode' : ''; // Toggles edit buttons
+    // SPEED FIX: Debounce function stops keyboard freeze
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => { displayItems(); }, 250); 
+    }
 
-      const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-      let matches = [];
+    // SPEED FIX: Batch Rendering prevents screen choppy lag
+    function displayItems() {
+      const queryInput = document.getElementById('searchBar').value.trim().toLowerCase();
+      // Handle multi-word searches (e.g. "brass tap")
+      const query = queryInput.split(/\s+/).filter(t => t.length > 0);
+      const resultsList = document.getElementById('resultsList');
+      resultsList.className = isAdmin ? 'edit-mode' : '';
+
+      let htmlBuffer = []; // Batching HTML string for single-pass drawing
 
       for (let rawKey in inventory) {
-        let itemCat = "General";
-        let displayName = rawKey;
-
+        let itemCat = "General"; let displayName = rawKey;
+        
+        // Parse Category: Name from flat data format
         if (rawKey.includes(':')) {
           const parts = rawKey.split(':');
           itemCat = cleanCategory(parts[0]);
           displayName = parts.slice(1).join(':').trim();
         }
-
-        if (currentCategory !== 'All' && currentCategory !== itemCat) continue;
-
-        const targetText = displayName.toLowerCase();
-        const allTokensMatch = queryTokens.length === 0 || queryTokens.every(t => targetText.includes(t));
         
-        if (allTokensMatch) {
-          matches.push({ rawKey, displayName, itemCat, price: inventory[rawKey] });
-        }
-      }
+        // 1. Filter by active category
+        if (currentCategory !== 'All' && currentCategory !== itemCat) continue;
+        
+        // 2. Filter by search query (MUST match multi-words like "brass" AND "tap")
+        const targetText = displayName.toLowerCase();
+        if (query.length > 0 && !query.every(t => targetText.includes(t))) continue;
 
-      document.getElementById('resultsCount').innerText = `${matches.length} item(s)`;
-
-      if (matches.length === 0) {
-        resultsList.innerHTML = '<div style="text-align:center; padding:30px;">No items found.</div>';
-        return;
-      }
-
-      matches.forEach(item => {
-        const safeKey = encodeSafe(item.rawKey);
-        resultsList.innerHTML += `
+        const safeKey = encodeSafe(rawKey);
+        const price = inventory[rawKey];
+        
+        htmlBuffer.push(`
           <div class="item-card">
             <div class="item-main">
               <div class="item-info">
-                <span class="item-name">${item.displayName}</span>
-                <span class="item-category-tag">${item.itemCat}</span>
+                <span class="item-name">${displayName}</span>
+                <span style="font-size: 12px; color: var(--subtext);">${itemCat}</span>
               </div>
-              <div class="item-price">₹${item.price}</div>
+              <div style="display:flex; align-items:center;">
+                <div class="item-price">₹${price}</div>
+                <!-- PART 5: CART EDITION +ADD BUTTON -->
+                <button class="add-cart-btn" onclick="addToCart('${safeKey}', ${price}, event)">+ Add</button>
+              </div>
             </div>
-            <!-- Edit Controls -->
             <div class="admin-actions">
-              <button class="action-btn btn-edit" onclick="inlineEdit('${safeKey}')">✏️ Edit Price</button>
-              <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
+              <button class="action-btn btn-edit" onclick="inlineEdit('${safeKey}')">✏️ Edit</button>
+              <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Del</button>
             </div>
           </div>
-        `;
-      });
+        `);
+      }
+      
+      // Paint screen once
+      resultsList.innerHTML = htmlBuffer.join('');
     }
 
-    function handleSearch() {
-      const val = document.getElementById('searchBar').value;
-      document.getElementById('clearSearchBtn').style.display = val.length > 0 ? 'flex' : 'none';
-      displayItems();
-    }
-    function clearSearch() {
-      document.getElementById('searchBar').value = '';
-      document.getElementById('clearSearchBtn').style.display = 'none';
-      displayItems();
-    }
     function setCategory(cat) { currentCategory = cat; buildCategories(); displayItems(); }
 
-    // --- Admin Interactions --- //
-    
-    function toggleAdmin() {
-      if (isAdmin) {
-        isAdmin = false;
-        document.getElementById('adminPanel').style.display = 'none';
-        displayItems();
-        return;
-      }
-      const userPin = prompt("Enter Owner PIN:");
-      if (userPin === ADMIN_PIN) {
-        isAdmin = true;
-        document.getElementById('adminPanel').style.display = 'block';
-        displayItems();
-        alert("Edit Mode Unlocked. You can now edit/delete items directly from the list.");
-      } else if (userPin !== null) {
-        alert("Incorrect PIN.");
-      }
+    // ==========================================
+    // CART, CALCULATOR & DYNAMIC MATH LOGIC
+    // ==========================================
+    function toggleCart() {
+      const modal = document.getElementById('cartModal');
+      const isVisible = modal.style.display === 'block';
+      modal.style.display = isVisible ? 'none' : 'block';
+      if (!isVisible) renderCartItems();
     }
 
-    function handleAdminCategoryChange() {
-      const select = document.getElementById('adminCategorySelect');
-      document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
-    }
-
-    // Inline Edit Price
-    async function inlineEdit(safeKey) {
+    function addToCart(safeKey, price, event) {
       const rawKey = decodeSafe(safeKey);
-      const currentPrice = inventory[rawKey];
-      const newPrice = prompt(`Enter new price for:\n${rawKey}`, currentPrice);
+      const displayName = rawKey.includes(':') ? rawKey.split(':').slice(1).join(':').trim() : rawKey;
       
-      if (newPrice === null || newPrice === currentPrice || newPrice.trim() === '') return;
-
-      try {
-        inventory[rawKey] = newPrice; 
-        displayItems(); // Optimistic UI update
-        
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'edit', itemName: rawKey, itemPrice: newPrice }),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-      } catch (error) {
-        alert("Failed to save to cloud.");
-        loadItems(false); // Revert on fail
+      let existing = cart.find(i => i.rawKey === rawKey);
+      if (existing) {
+        // Just increment pieces (qty)
+        existing.qty += 1; 
+      } else {
+        // Add new structure for calculator logic
+        cart.push({ rawKey, displayName, price: parseFloat(price), qty: 1 }); 
       }
-    }
-
-    // Delete Item with Double Confirm
-    async function deleteItem(safeKey) {
-      const rawKey = decodeSafe(safeKey);
       
-      if (!confirm(`Are you sure you want to DELETE:\n"${rawKey}"?`)) return;
-      if (!confirm(`FINAL WARNING:\nThis will permanently remove the item from the Google Sheet. There is no undo.\n\nProceed?`)) return;
-
-      try {
-        delete inventory[rawKey];
-        displayItems(); // Optimistic UI update
-
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'delete', itemName: rawKey }),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-        buildCategories();
-      } catch (error) {
-        alert("Delete failed.");
-        loadItems(false); // Revert on fail
+      document.getElementById('cartCount').innerText = cart.length;
+      
+      // Visual feedback on the +Add button
+      if (event && event.target) {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.innerText = "Added!";
+        btn.style.background = "var(--success)";
+        setTimeout(() => { btn.innerText = originalText; btn.style.background = "var(--primary)"; }, 600);
       }
     }
 
-    // Add completely new item from bottom panel
-    async function saveNewItem() {
-      const select = document.getElementById('adminCategorySelect');
-      let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
-      const name = document.getElementById('itemName').value.trim();
-      const price = document.getElementById('itemPrice').value;
-      const btn = document.getElementById('saveBtn');
-
-      if (!cat || !name || !price) return alert("Complete all fields.");
-
-      btn.innerText = "Saving...";
-      const fullKey = `${cleanCategory(cat)}: ${name}`;
-
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'edit', itemName: fullKey, itemPrice: price }),
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        });
-        inventory[fullKey] = price;
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-        
-        document.getElementById('itemName').value = '';
-        document.getElementById('itemPrice').value = '';
-        buildCategories(); displayItems();
-        alert("Saved!");
-      } catch (e) {
-        alert("Failed to save.");
-      }
-      btn.innerText = "Save New Item";
+    function updateQty(index, newQty) {
+      // 0 Quantity irreversibly deletes item from cart
+      if (newQty < 1) cart.splice(index, 1);
+      else cart[index].qty = parseInt(newQty);
+      
+      document.getElementById('cartCount').innerText = cart.length;
+      renderCartItems(); // Redraw the sub-totals
     }
 
-    init();
-  </script>
-</body>
-  </html>
-  
+    function renderCartItems() {
+      const list = document.getElementById('cartItemsList');
+      let cartHtml = [];
+      cart.forEach((item, index) => {
+        // CALCULATOR DYNAMIC MATH: qty * price
+        const itemTotal = item.price * item.qty;
+        cartHtml.push(`
+          <div class="cart-item">
+            <div style="flex:2;"><strong>${item.displayName}</strong><br>₹${item.price}</div>
+            <div style="flex:1; text-align:center;">
+              <input type="number" class="qty-input" value="${item.qty}" min="0" onchange="updateQty(${index}, this.value)">
+            </div>
+            <div style="flex:1; text-align:right; font-weight:bold;">₹${itemTotal.toFixed(2)}</div>
+            <button onclick="updateQty(${index}, 0)" style="margin-left:10px; color:red; border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
+          </div>
+        `);
+      });
+      list.innerHTML = cartHtml.join('');
+      updateCartTotals(); // Redraw the grand-totals
+    }
+
+    function updateCartTotals() {
+      // Base calculation: Qty * Price for everything
+      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      
+      // Math inputs (using Final Calc format inputs)
+      let discountPct = parseFloat(document.getElementById('discountPct').value) || 0;
+      let adjustment = parseFloat(document.getElementById('adjustmentAmt').value) || 0;
+      
+      // DYNAMIC CALC LOGIC
+      let discountAmt = subtotal * (discountPct / 100);
+      
+      // GRAND TOTAL MATH: Subtotal - Discount + Khata Adjustment
+      let grandTotal = subtotal - discountAmt + adjustment;
+
+      // Update Display UI
+      document.getElementById('subtotalAmt').innerText = `₹${subtotal.toFixed(2)}`;
+      document.getElementById('discountAmt').innerText = `- ₹${discountAmt.toFixed(2)}`;
+      document.getElementById('grandTotalAmt').innerText = `₹${grandTotal.toFixed(2)}`;
+    }
+
+    // PART 6: SCANNER DISPLAY TOGGLE LOGIC
+    function toggleQR() {
+      const isChecked = document.getElementById('qrToggle').checked;
+      // Reveals Husain Huzaifa Nasikwala's image
+      document.getElementById('qrImage').style.display = isChecked ? 'block' : 'none';
+    }
+
+    // PART 7: WHATSAPP BILLING (Nashik Localized)
+    function sendWhatsApp() {
+      const custName = document.getElementById('custName').v
