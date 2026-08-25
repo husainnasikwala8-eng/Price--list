@@ -13,6 +13,7 @@
       --subtext: #666666;
       --success: #28a745;
       --border: #e0e0e0;
+      --danger: #dc3545;
     }
     
     body {
@@ -25,18 +26,14 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    /* Header Bar */
     .header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
-    .header h2 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-    }
+    .header h2 { margin: 0; font-size: 22px; font-weight: 700; }
+    
     .sync-btn {
       background: none;
       border: 1px solid var(--border);
@@ -47,13 +44,10 @@
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 4px;
       font-weight: 600;
       color: var(--subtext);
     }
-    .sync-btn:active { background-color: #eee; }
 
-    /* Category Buttons Scroll Bar */
     .category-bar {
       display: flex;
       overflow-x: auto;
@@ -74,18 +68,10 @@
       font-size: 14px;
       font-weight: 600;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .cat-btn.active {
-      background: var(--primary);
-      color: #ffffff;
-    }
+    .cat-btn.active { background: var(--primary); color: #ffffff; }
 
-    /* Search Bar with Clear Button */
-    .search-wrapper {
-      position: relative;
-      margin-bottom: 10px;
-    }
+    .search-wrapper { position: relative; margin-bottom: 10px; }
     .search-input {
       width: 100%;
       padding: 14px 40px 14px 14px;
@@ -94,11 +80,9 @@
       border-radius: 10px;
       box-sizing: border-box;
       outline: none;
-      background-color: var(--card-bg);
     }
-    .search-input:focus {
-      border-color: var(--primary);
-    }
+    .search-input:focus { border-color: var(--primary); }
+    
     .clear-search-btn {
       position: absolute;
       right: 12px;
@@ -110,14 +94,12 @@
       border-radius: 50%;
       width: 22px;
       height: 22px;
-      font-size: 12px;
       display: none;
       align-items: center;
       justify-content: center;
       cursor: pointer;
     }
 
-    /* Status Bar */
     .status-bar {
       display: flex;
       justify-content: space-between;
@@ -127,11 +109,9 @@
       padding: 0 4px;
     }
 
-    /* Results List */
     .item-card {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       background: var(--card-bg);
       padding: 14px 16px;
       margin-bottom: 8px;
@@ -139,32 +119,41 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       border: 1px solid rgba(0,0,0,0.03);
     }
-    .item-info {
+    
+    .item-main {
       display: flex;
-      flex-direction: column;
-      gap: 3px;
+      justify-content: space-between;
+      align-items: center;
     }
-    .item-name {
-      font-size: 16px;
-      font-weight: 500;
-    }
-    .item-category-tag {
-      font-size: 12px;
-      color: var(--subtext);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .item-price {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--success);
-    }
-    .highlight {
-      background-color: #ffe58f;
-      border-radius: 2px;
-    }
+    
+    .item-info { display: flex; flex-direction: column; gap: 3px; }
+    .item-name { font-size: 16px; font-weight: 500; }
+    .item-category-tag { font-size: 12px; color: var(--subtext); letter-spacing: 0.5px; }
+    .item-price { font-size: 18px; font-weight: 700; color: var(--success); }
+    .highlight { background-color: #ffe58f; border-radius: 2px; }
 
-    /* Admin Panel */
+    /* Admin Action Buttons (Hidden by Default) */
+    .admin-actions {
+      display: none;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .edit-mode .admin-actions { display: flex; }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-edit { background: #e0f0ff; color: var(--primary); }
+    .btn-del { background: #ffe0e0; color: var(--danger); }
+
     .admin-panel {
       display: none; 
       background: var(--card-bg);
@@ -172,13 +161,8 @@
       margin-top: 30px;
       border-radius: 12px;
       border-top: 4px solid var(--primary);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
-    .admin-panel h3 {
-      margin-top: 0;
-      color: var(--primary);
-      font-size: 18px;
-    }
+    .admin-panel h3 { margin-top: 0; color: var(--primary); font-size: 18px; }
     .admin-input, .admin-select {
       width: 100%;
       padding: 12px;
@@ -187,7 +171,6 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       box-sizing: border-box;
-      background-color: #fff;
     }
     .admin-save-btn {
       width: 100%;
@@ -200,7 +183,6 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .admin-save-btn:active { background: #0056b3; }
 
     .secret-lock {
       text-align: center;
@@ -232,31 +214,21 @@
     <span id="syncStatus"></span>
   </div>
 
+  <!-- Items list gets class "edit-mode" when admin unlocks -->
   <div id="resultsList"></div>
 
-  <!-- Hidden Admin Panel -->
   <div class="admin-panel" id="adminPanel">
-    <h3>Owner: Update / Add Item</h3>
-    
-    <label style="font-size:12px; font-weight:600; color:var(--subtext);">CATEGORY</label>
-    <select id="adminCategorySelect" class="admin-select" onchange="handleAdminCategoryChange()">
-      <!-- Populated dynamically -->
-    </select>
-
+    <h3>Add Brand New Item</h3>
+    <select id="adminCategorySelect" class="admin-select" onchange="handleAdminCategoryChange()"></select>
     <div id="newCategoryWrapper" style="display:none;">
       <input type="text" id="newCategoryInput" class="admin-input" placeholder="Enter New Category Name">
     </div>
-
-    <label style="font-size:12px; font-weight:600; color:var(--subtext);">ITEM NAME</label>
     <input type="text" id="itemName" class="admin-input" placeholder="e.g. Basin Tap 1/2">
-
-    <label style="font-size:12px; font-weight:600; color:var(--subtext);">PRICE (₹)</label>
-    <input type="number" id="itemPrice" class="admin-input" placeholder="e.g. 280">
-
-    <button id="saveBtn" class="admin-save-btn" onclick="saveItem()">Save to Cloud</button>
+    <input type="number" id="itemPrice" class="admin-input" placeholder="Price (₹)">
+    <button id="saveBtn" class="admin-save-btn" onclick="saveNewItem()">Save New Item</button>
   </div>
 
-  <div class="secret-lock" onclick="checkPin()">🔒</div>
+  <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
@@ -265,8 +237,8 @@
     let inventory = {};
     let currentCategory = 'All';
     let uniqueCategories = new Set();
+    let isAdmin = false;
 
-    // 1. Initialize with Offline Cache & Background Sync
     function init() {
       const cached = localStorage.getItem('shop_inventory_cache');
       if (cached) {
@@ -275,97 +247,76 @@
           buildCategories();
           displayItems();
           document.getElementById('syncStatus').innerText = "Cached";
-        } catch (e) {
-          console.error("Cache parsing error", e);
-        }
+        } catch (e) { }
       }
       loadItems(false);
     }
 
-    // 2. Fetch Latest from Google Sheets
     async function loadItems(manual = false) {
       const syncBtn = document.getElementById('syncBtn');
-      const syncStatus = document.getElementById('syncStatus');
-      
-      if (manual) {
-        syncBtn.innerText = "⏳ Syncing...";
-      }
+      if (manual) syncBtn.innerText = "⏳ Syncing...";
 
       try {
         const response = await fetch(API_URL);
-        const data = await response.json();
-        
-        inventory = data;
+        inventory = await response.json();
         localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-        
         buildCategories();
         displayItems();
-        
-        syncStatus.innerText = "Synced";
-        if (manual) alert("Prices updated successfully from Google Sheets!");
+        document.getElementById('syncStatus').innerText = "Synced";
+        if (manual) alert("Prices updated successfully!");
       } catch (error) {
-        console.error("Network sync failed:", error);
-        syncStatus.innerText = "Offline Mode";
-        if (manual) alert("Could not connect to Google Sheets. Using offline data.");
+        document.getElementById('syncStatus').innerText = "Offline Mode";
+        if (manual) alert("Sync failed. Check internet.");
       } finally {
         syncBtn.innerText = "🔄 Sync";
       }
     }
 
-    // 3. Build Dynamic Categories and Populate Admin Dropdown
+    // Auto-Capitalize engine for messy formatting
+    function cleanCategory(catStr) {
+      if (!catStr) return 'General';
+      catStr = catStr.trim();
+      return catStr.charAt(0).toUpperCase() + catStr.slice(1).toLowerCase();
+    }
+
+    // Secure key encoding to prevent quotes from breaking HTML
+    function encodeSafe(str) { return btoa(unescape(encodeURIComponent(str))); }
+    function decodeSafe(str) { return decodeURIComponent(escape(atob(str))); }
+
     function buildCategories() {
       uniqueCategories.clear();
       uniqueCategories.add('All');
 
       for (let item in inventory) {
         if (item.includes(':')) {
-          const cat = item.split(':')[0].trim();
-          if (cat) uniqueCategories.add(cat);
+          uniqueCategories.add(cleanCategory(item.split(':')[0]));
         } else {
           uniqueCategories.add('General');
         }
       }
 
-      // Render Top Category Buttons
       const catBar = document.getElementById('categoryBar');
       catBar.innerHTML = '';
       uniqueCategories.forEach(cat => {
-        const btn = document.createElement('button');
-        btn.className = `cat-btn ${cat === currentCategory ? 'active' : ''}`;
-        btn.innerText = cat;
-        btn.onclick = () => setCategory(cat);
-        catBar.appendChild(btn);
+        catBar.innerHTML += `<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`;
       });
 
-      // Render Admin Category Dropdown
       const adminSelect = document.getElementById('adminCategorySelect');
       adminSelect.innerHTML = '';
-      
       uniqueCategories.forEach(cat => {
-        if (cat !== 'All') {
-          const opt = document.createElement('option');
-          opt.value = cat;
-          opt.innerText = cat;
-          adminSelect.appendChild(opt);
-        }
+        if (cat !== 'All') adminSelect.innerHTML += `<option value="${cat}">${cat}</option>`;
       });
-
-      const newOpt = document.createElement('option');
-      newOpt.value = "__NEW__";
-      newOpt.innerText = "+ Add New Category...";
-      adminSelect.appendChild(newOpt);
+      adminSelect.innerHTML += `<option value="__NEW__">+ Add New Category...</option>`;
     }
 
-    // 4. Amazon-Style Search Algorithm (Multi-word + Nearest Match Fallback)
     function displayItems() {
       const query = document.getElementById('searchBar').value.trim();
       const resultsList = document.getElementById('resultsList');
-      const resultsCount = document.getElementById('resultsCount');
       resultsList.innerHTML = '';
+      resultsList.className = isAdmin ? 'edit-mode' : ''; // Toggles edit buttons
 
       const queryTokens = query.toLowerCase().split(/\s+/).filter(t => t.length > 0);
-      let exactMatches = [];
-      let partialMatches = [];
+      let matches = [];
 
       for (let rawKey in inventory) {
         let itemCat = "General";
@@ -373,115 +324,75 @@
 
         if (rawKey.includes(':')) {
           const parts = rawKey.split(':');
-          itemCat = parts[0].trim();
+          itemCat = cleanCategory(parts[0]);
           displayName = parts.slice(1).join(':').trim();
         }
 
-        // Category Filter
-        if (currentCategory !== 'All' && currentCategory.toLowerCase() !== itemCat.toLowerCase()) {
-          continue;
-        }
+        if (currentCategory !== 'All' && currentCategory !== itemCat) continue;
 
         const targetText = displayName.toLowerCase();
-        const price = inventory[rawKey];
-
-        if (queryTokens.length === 0) {
-          exactMatches.push({ rawKey, displayName, itemCat, price });
-        } else {
-          // Check if ALL query words appear in the name (Order independent)
-          const allTokensMatch = queryTokens.every(token => targetText.includes(token));
-          
-          if (allTokensMatch) {
-            exactMatches.push({ rawKey, displayName, itemCat, price });
-          } else {
-            // Check if ANY word matches for "Nearest Items" suggestion
-            const matchCount = queryTokens.filter(token => targetText.includes(token)).length;
-            if (matchCount > 0) {
-              partialMatches.push({ rawKey, displayName, itemCat, price, score: matchCount });
-            }
-          }
+        const allTokensMatch = queryTokens.length === 0 || queryTokens.every(t => targetText.includes(t));
+        
+        if (allTokensMatch) {
+          matches.push({ rawKey, displayName, itemCat, price: inventory[rawKey] });
         }
       }
 
-      // Sort partial matches by highest relevance
-      partialMatches.sort((a, b) => b.score - a.score);
+      document.getElementById('resultsCount').innerText = `${matches.length} item(s)`;
 
-      let itemsToRender = exactMatches;
-      let isFallback = false;
-
-      if (exactMatches.length === 0 && partialMatches.length > 0) {
-        itemsToRender = partialMatches;
-        isFallback = true;
-      }
-
-      // Render Cards
-      if (itemsToRender.length === 0) {
-        resultsList.innerHTML = '<div style="text-align:center; color:#888; padding:30px;">No items found.</div>';
-        resultsCount.innerText = "0 items";
+      if (matches.length === 0) {
+        resultsList.innerHTML = '<div style="text-align:center; padding:30px;">No items found.</div>';
         return;
       }
 
-      resultsCount.innerText = isFallback 
-        ? `No exact match. Showing ${itemsToRender.length} related items:` 
-        : `${itemsToRender.length} item${itemsToRender.length === 1 ? '' : 's'}`;
-
-      itemsToRender.forEach(item => {
-        const highlightedName = highlightText(item.displayName, queryTokens);
-        const card = document.createElement('div');
-        card.className = 'item-card';
-        card.innerHTML = `
-          <div class="item-info">
-            <span class="item-name">${highlightedName}</span>
-            <span class="item-category-tag">${item.itemCat}</span>
+      matches.forEach(item => {
+        const safeKey = encodeSafe(item.rawKey);
+        resultsList.innerHTML += `
+          <div class="item-card">
+            <div class="item-main">
+              <div class="item-info">
+                <span class="item-name">${item.displayName}</span>
+                <span class="item-category-tag">${item.itemCat}</span>
+              </div>
+              <div class="item-price">₹${item.price}</div>
+            </div>
+            <!-- Edit Controls -->
+            <div class="admin-actions">
+              <button class="action-btn btn-edit" onclick="inlineEdit('${safeKey}')">✏️ Edit Price</button>
+              <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
+            </div>
           </div>
-          <div class="item-price">₹${item.price || '-'}</div>
         `;
-        resultsList.appendChild(card);
       });
     }
 
-    // 5. Keyword Highlight Helper
-    function highlightText(text, tokens) {
-      if (!tokens || tokens.length === 0) return text;
-      let highlighted = text;
-      tokens.forEach(token => {
-        const regex = new RegExp(`(${escapeRegExp(token)})`, 'gi');
-        highlighted = highlighted.replace(regex, `<span class="highlight">$1</span>`);
-      });
-      return highlighted;
-    }
-
-    function escapeRegExp(string) {
-      return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    }
-
-    // 6. Search Input Controls
     function handleSearch() {
       const val = document.getElementById('searchBar').value;
       document.getElementById('clearSearchBtn').style.display = val.length > 0 ? 'flex' : 'none';
       displayItems();
     }
-
     function clearSearch() {
-      const input = document.getElementById('searchBar');
-      input.value = '';
+      document.getElementById('searchBar').value = '';
       document.getElementById('clearSearchBtn').style.display = 'none';
-      input.focus();
       displayItems();
     }
+    function setCategory(cat) { currentCategory = cat; buildCategories(); displayItems(); }
 
-    function setCategory(cat) {
-      currentCategory = cat;
-      buildCategories();
-      displayItems();
-    }
-
-    // 7. Admin Panel Logic
-    function checkPin() {
+    // --- Admin Interactions --- //
+    
+    function toggleAdmin() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.getElementById('adminPanel').style.display = 'none';
+        displayItems();
+        return;
+      }
       const userPin = prompt("Enter Owner PIN:");
       if (userPin === ADMIN_PIN) {
+        isAdmin = true;
         document.getElementById('adminPanel').style.display = 'block';
-        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        displayItems();
+        alert("Edit Mode Unlocked. You can now edit/delete items directly from the list.");
       } else if (userPin !== null) {
         alert("Incorrect PIN.");
       }
@@ -489,67 +400,89 @@
 
     function handleAdminCategoryChange() {
       const select = document.getElementById('adminCategorySelect');
-      const newWrapper = document.getElementById('newCategoryWrapper');
-      if (select.value === '__NEW__') {
-        newWrapper.style.display = 'block';
-        document.getElementById('newCategoryInput').focus();
-      } else {
-        newWrapper.style.display = 'none';
+      document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
+    }
+
+    // Inline Edit Price
+    async function inlineEdit(safeKey) {
+      const rawKey = decodeSafe(safeKey);
+      const currentPrice = inventory[rawKey];
+      const newPrice = prompt(`Enter new price for:\n${rawKey}`, currentPrice);
+      
+      if (newPrice === null || newPrice === currentPrice || newPrice.trim() === '') return;
+
+      try {
+        inventory[rawKey] = newPrice; 
+        displayItems(); // Optimistic UI update
+        
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'edit', itemName: rawKey, itemPrice: newPrice }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+      } catch (error) {
+        alert("Failed to save to cloud.");
+        loadItems(false); // Revert on fail
       }
     }
 
-    async function saveItem() {
-      const select = document.getElementById('adminCategorySelect');
-      let cat = select.value;
+    // Delete Item with Double Confirm
+    async function deleteItem(safeKey) {
+      const rawKey = decodeSafe(safeKey);
+      
+      if (!confirm(`Are you sure you want to DELETE:\n"${rawKey}"?`)) return;
+      if (!confirm(`FINAL WARNING:\nThis will permanently remove the item from the Google Sheet. There is no undo.\n\nProceed?`)) return;
 
-      if (cat === '__NEW__') {
-        cat = document.getElementById('newCategoryInput').value.trim();
+      try {
+        delete inventory[rawKey];
+        displayItems(); // Optimistic UI update
+
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'delete', itemName: rawKey }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+        buildCategories();
+      } catch (error) {
+        alert("Delete failed.");
+        loadItems(false); // Revert on fail
       }
+    }
 
+    // Add completely new item from bottom panel
+    async function saveNewItem() {
+      const select = document.getElementById('adminCategorySelect');
+      let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
       const name = document.getElementById('itemName').value.trim();
       const price = document.getElementById('itemPrice').value;
       const btn = document.getElementById('saveBtn');
 
-      if (!cat || !name || !price) {
-        alert("Please complete Category, Item Name, and Price.");
-        return;
-      }
+      if (!cat || !name || !price) return alert("Complete all fields.");
 
-      btn.innerText = "Saving to Google Sheets...";
-      btn.style.background = "#555";
-
-      const fullKey = `${cat}: ${name}`;
+      btn.innerText = "Saving...";
+      const fullKey = `${cleanCategory(cat)}: ${name}`;
 
       try {
         await fetch(API_URL, {
           method: 'POST',
-          body: JSON.stringify({ itemName: fullKey, itemPrice: price }),
+          body: JSON.stringify({ action: 'edit', itemName: fullKey, itemPrice: price }),
           headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         });
-
         inventory[fullKey] = price;
         localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-
+        
         document.getElementById('itemName').value = '';
         document.getElementById('itemPrice').value = '';
-        document.getElementById('newCategoryInput').value = '';
-        if (select.value === '__NEW__') {
-          select.value = cat;
-          document.getElementById('newCategoryWrapper').style.display = 'none';
-        }
-
-        buildCategories();
-        displayItems();
-        alert("Price saved successfully!");
-      } catch (error) {
-        alert("Failed to save to cloud. Check internet connection.");
-      } finally {
-        btn.innerText = "Save to Cloud";
-        btn.style.background = "var(--primary)";
+        buildCategories(); displayItems();
+        alert("Saved!");
+      } catch (e) {
+        alert("Failed to save.");
       }
+      btn.innerText = "Save New Item";
     }
 
-    // Launch Application
     init();
   </script>
 </body>
