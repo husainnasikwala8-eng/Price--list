@@ -3,192 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Raj Traders POS</title>
+  <title>Raj Traders</title>
+  <meta name="theme-color" content="#1a5fb4">
   <style>
-    :root {
-      --primary: #007aff; --bg: #f4f4f9; --card-bg: #ffffff;
-      --text: #222222; --subtext: #666666; --success: #28a745;
-      --border: #e0e0e0; --danger: #dc3545;
-    }
+    :root { --primary: #1a5fb4; --bg: #f4f4f9; --card-bg: #ffffff; --text: #222222; --subtext: #666666; --success: #28a745; --border: #e0e0e0; --danger: #dc3545; }
     body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 500px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .header h2 { margin: 0; font-size: 22px; font-weight: 700; }
-    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); }
-    
+    .header h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--primary); }
+    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); cursor: pointer; }
     .category-bar { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 12px; white-space: nowrap; }
     .category-bar::-webkit-scrollbar { display: none; }
-    .cat-btn { background: #e5e5ea; padding: 8px 16px; border-radius: 20px; border: none; font-weight: 600; }
+    .cat-btn { background: #e5e5ea; padding: 8px 16px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer; }
     .cat-btn.active { background: var(--primary); color: #fff; }
-
-    .search-input { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 10px; }
     
-    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.03); }
-    .item-main { display: flex; justify-content: space-between; align-items: center; }
+    /* Search Bar */
+    .search-input { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; }
+    
+    /* Item Cards */
+    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
     .item-info { display: flex; flex-direction: column; }
-    .item-name { font-size: 16px; font-weight: 500; }
+    .item-name { font-size: 16px; font-weight: 600; color: var(--text); }
+    .item-cat { font-size: 12px; color: var(--subtext); margin-top: 4px; }
     .item-price { font-size: 18px; font-weight: 700; color: var(--success); }
     
-    .add-cart-btn { background: var(--primary); color: white; border: none; border-radius: 6px; padding: 6px 16px; font-weight: bold; margin-left: 10px; cursor: pointer; }
-
-    .floating-cart { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px 20px; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 100; border: none; cursor: pointer; }
-    
-    /* CART UI */
-    .cart-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 200; overflow-y: auto; padding: 20px; box-sizing: border-box; }
-    .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--text); padding-bottom: 10px; margin-bottom: 15px; }
-    
-    .customer-input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-weight:bold; }
-    
-    .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
-    .qty-input { width: 50px; padding: 5px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
-    
-    .cart-totals { margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
-    .totals-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 16px; align-items: center;}
-    .math-input { width: 70px; padding: 6px; text-align: center; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; font-weight:bold;}
-    .grand-total { font-size: 22px; font-weight: bold; color: var(--success); border-top: 2px solid #ddd; padding-top: 10px; margin-top: 10px; }
-    
-    /* QR Scanner Section */
-    .qr-section { margin-top: 15px; text-align: center; background: #e0f0ff; padding: 15px; border-radius: 8px; }
-    .qr-label { font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;}
-    .qr-image { display: none; margin-top: 15px; max-width: 100%; height: auto; border-radius: 8px; border: 2px solid var(--primary); }
-
-    .action-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-    .btn-action { flex: 1 1 45%; color: white; padding: 14px; border-radius: 8px; border: none; font-weight: bold; font-size: 15px; cursor: pointer; text-align:center;}
-    .bg-print { background: var(--primary); }
-    .bg-wa { background: #25D366; }
-    .bg-clear { background: #dc3545; flex: 1 1 100%; }
-
-    .admin-actions { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px dashed var(--border); justify-content: flex-end; gap: 10px; }
+    /* Admin Actions (Hidden by default) */
+    .admin-actions { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); justify-content: flex-end; gap: 10px; width: 100%; }
     .edit-mode .admin-actions { display: flex; }
-    .action-btn { padding: 6px 12px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
+    .item-wrapper { display: flex; flex-direction: column; width: 100%; }
+    .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    .action-btn { padding: 6px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; }
     .btn-edit { background: #e0f0ff; color: var(--primary); }
     .btn-del { background: #ffe0e0; color: var(--danger); }
-
-    .admin-panel { display: none; background: var(--card-bg); padding: 20px; margin-top: 30px; border-radius: 12px; border-top: 4px solid var(--primary); }
+    
+    /* Admin Add Item Panel */
+    .admin-panel { display: none; background: var(--card-bg); padding: 20px; margin-top: 30px; border-radius: 12px; border-top: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .admin-input, .admin-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
     .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    
+    /* Secret Lock Trigger */
     .secret-lock { text-align: center; margin-top: 40px; font-size: 22px; opacity: 0.15; padding: 10px; cursor: pointer; }
-
-    @media print {
-      body * { visibility: hidden; }
-      .cart-modal, .cart-modal * { visibility: visible; }
-      .cart-modal { position: absolute; left: 0; top: 0; width: 100%; height: auto; padding: 0; }
-      .btn-action, .remove-btn { display: none !important; }
-      .qty-input, .math-input { border: none; background: transparent; padding: 0; width: auto; font-weight: bold; }
-      .customer-input { border: none; padding: 0; margin-bottom: 5px; font-size: 18px; }
-      .cart-header h2::before { content: "RAJ TRADERS - INVOICE\A"; white-space: pre; font-size: 24px; display: block; text-align: center; margin-bottom: 5px; }
-    }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2>Price Lookup</h2>
-    <span class="sync-btn" id="syncStatus">🟢 Ready</span>
+    <h2>Raj Traders</h2>
+    <span class="sync-btn" id="syncStatus" onclick="backgroundSync()">🟢 Ready</span>
   </div>
   
   <div class="category-bar" id="categoryBar"></div>
-  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search item (e.g. brass tap)..." oninput="debounceSearch()">
+  
+  <!-- Instant Search Bar -->
+  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search items instantly..." oninput="displayItems()">
+  
   <div id="resultsList"></div>
 
-  <button class="floating-cart" onclick="toggleCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
-
-  <div class="cart-modal" id="cartModal">
-    <div class="cart-header">
-      <h2>Bill Summary</h2>
-      <button onclick="toggleCart()" style="background:none; border:none; font-size:20px; font-weight:bold;">✕</button>
-    </div>
-    
-    <input type="text" id="custName" class="customer-input" placeholder="Enter Customer Name">
-
-    <div id="cartItemsList"></div>
-
-    <div class="cart-totals">
-      <div class="totals-row">
-        <span>Subtotal:</span>
-        <span id="subtotalAmt">₹0.00</span>
-      </div>
-      <div class="totals-row">
-        <span>Discount (%):</span>
-        <input type="number" id="discountPct" class="math-input" value="0" min="0" max="100" oninput="updateCartTotals()">
-      </div>
-      <div class="totals-row">
-        <span>Previous Due (+/-):</span>
-        <input type="number" id="adjustmentAmt" class="math-input" value="0" placeholder="e.g. -500" oninput="updateCartTotals()">
-      </div>
-      <div class="totals-row grand-total">
-        <span>Grand Total:</span>
-        <span id="grandTotalAmt">₹0.00</span>
-      </div>
-    </div>
-
-    <!-- Scanner Integration -->
-    <div class="qr-section">
-      <label class="qr-label">
-        <input type="checkbox" id="qrToggle" onchange="toggleQR()" style="width:20px; height:20px;">
-        Show Payment Scanner
-      </label>
-      <img src="1000044371.jpg" id="qrImage" class="qr-image" alt="UPI Scanner">
-    </div>
-
-    <div class="action-row">
-      <button class="btn-action bg-print" onclick="window.print()">🖨️ Print Bill</button>
-      <button class="btn-action bg-wa" onclick="sendWhatsApp()">📲 WhatsApp Bill</button>
-      <button class="btn-action bg-clear" onclick="clearCart()">🗑️ Clear Bill</button>
-    </div>
-  </div>
-
+  <!-- Admin Panel for Adding Items -->
   <div class="admin-panel" id="adminPanel">
-    <h3>Add Brand New Item</h3>
+    <h3>Add New Item</h3>
     <select id="adminCategorySelect" class="admin-select" onchange="handleAdminCategoryChange()"></select>
     <div id="newCategoryWrapper" style="display:none;">
-      <input type="text" id="newCategoryInput" class="admin-input" placeholder="Enter New Category Name">
+      <input type="text" id="newCategoryInput" class="admin-input" placeholder="Type New Category Name">
     </div>
-    <input type="text" id="itemName" class="admin-input" placeholder="e.g. Basin Tap 1/2">
+    <input type="text" id="itemName" class="admin-input" placeholder="Item Name (e.g. Brass Tap)">
     <input type="number" id="itemPrice" class="admin-input" placeholder="Price (₹)">
-    <button id="saveBtn" class="admin-save-btn" onclick="saveNewItem()">Save New Item</button>
+    <button class="admin-save-btn" onclick="saveNewItem()">Save to Shop</button>
   </div>
 
   <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
 
   <script>
+    // The Active Google Script URL
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
     const ADMIN_PIN = "1234";
 
-    let inventory = {}; let cart = []; let currentCategory = 'All'; let uniqueCategories = new Set();
-    let isAdmin = false; let searchTimeout;
+    let inventory = {};
+    let currentCategory = 'All';
+    let uniqueCategories = new Set();
+    let isAdmin = false;
 
     function init() {
-      const cached = localStorage.getItem('shop_inventory_cache');
-      if (cached) { 
-        try { inventory = JSON.parse(cached); buildCategories(); displayItems(); } catch (e) {} 
+      const cached = localStorage.getItem('raj_traders_fast_cache');
+      if (cached) {
+        try {
+          inventory = JSON.parse(cached);
+          buildCategories();
+          displayItems();
+        } catch (e) {
+          localStorage.removeItem('raj_traders_fast_cache');
+        }
       }
       backgroundSync();
     }
 
     async function backgroundSync() {
       const status = document.getElementById('syncStatus');
-      status.innerText = "🔄 Syncing...";
+      if (status) status.innerText = "🔄 Syncing...";
       try {
         const response = await fetch(API_URL);
         const newData = await response.json();
         if (JSON.stringify(inventory) !== JSON.stringify(newData)) {
           inventory = newData;
-          localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
-          buildCategories(); displayItems();
+          localStorage.setItem('raj_traders_fast_cache', JSON.stringify(inventory));
+          buildCategories();
+          displayItems();
         }
-        status.innerText = "🟢 Live";
-      } catch (error) { status.innerText = "🟡 Offline Mode"; }
+        if (status) status.innerText = "🟢 Live";
+      } catch (error) {
+        if (status) status.innerText = "🟡 Offline";
+      }
     }
 
     function cleanCategory(catStr) {
       if (!catStr) return 'General';
-      return catStr.trim().charAt(0).toUpperCase() + catStr.trim().slice(1).toLowerCase();
+      let clean = catStr.toString().trim();
+      return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
     }
-    function encodeSafe(str) { return btoa(unescape(encodeURIComponent(str))); }
-    function decodeSafe(str) { return decodeURIComponent(escape(atob(str))); }
 
     function buildCategories() {
-      uniqueCategories.clear(); uniqueCategories.add('All');
+      uniqueCategories.clear();
+      uniqueCategories.add('All');
       for (let item in inventory) {
         if (item.includes(':')) uniqueCategories.add(cleanCategory(item.split(':')[0]));
         else uniqueCategories.add('General');
@@ -198,56 +132,60 @@
       uniqueCategories.forEach(cat => {
         catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${cat}</button>`);
       });
-      document.getElementById('categoryBar').innerHTML = catHtml.join('');
+      const catBar = document.getElementById('categoryBar');
+      if (catBar) catBar.innerHTML = catHtml.join('');
 
       let adminHtml = [];
       uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${cat}">${cat}</option>`); });
       adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
-      document.getElementById('adminCategorySelect').innerHTML = adminHtml.join('');
+      const adminSelect = document.getElementById('adminCategorySelect');
+      if (adminSelect) adminSelect.innerHTML = adminHtml.join('');
     }
 
-    function debounceSearch() {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => { displayItems(); }, 250); 
-    }
-
+    // Instant Search Render
     function displayItems() {
-      const query = document.getElementById('searchBar').value.trim().toLowerCase().split(/\s+/).filter(t => t.length > 0);
+      const searchBar = document.getElementById('searchBar');
+      const queryInput = searchBar ? searchBar.value.trim().toLowerCase() : '';
+      const queryWords = queryInput.split(/\s+/).filter(w => w.length > 0);
       const resultsList = document.getElementById('resultsList');
+      if (!resultsList) return;
+      
       resultsList.className = isAdmin ? 'edit-mode' : '';
 
-      let htmlBuffer = []; 
+      let htmlBuffer = [];
 
       for (let rawKey in inventory) {
-        let itemCat = "General"; let displayName = rawKey;
+        let itemCat = "General";
+        let displayName = rawKey;
+        
         if (rawKey.includes(':')) {
           const parts = rawKey.split(':');
           itemCat = cleanCategory(parts[0]);
           displayName = parts.slice(1).join(':').trim();
         }
-        if (currentCategory !== 'All' && currentCategory !== itemCat) continue;
-        
-        const targetText = displayName.toLowerCase();
-        if (query.length > 0 && !query.every(t => targetText.includes(t))) continue;
 
-        const safeKey = encodeSafe(rawKey);
+        if (currentCategory !== 'All' && currentCategory !== itemCat) continue;
+
+        const targetText = displayName.toLowerCase();
+        if (queryWords.length > 0 && !queryWords.every(w => targetText.includes(w))) continue;
+
+        const safeKey = btoa(unescape(encodeURIComponent(rawKey)));
         const price = inventory[rawKey];
-        
+
         htmlBuffer.push(`
           <div class="item-card">
-            <div class="item-main">
-              <div class="item-info">
-                <span class="item-name">${displayName}</span>
-                <span style="font-size: 12px; color: var(--subtext);">${itemCat}</span>
-              </div>
-              <div style="display:flex; align-items:center;">
+            <div class="item-wrapper">
+              <div class="top-row">
+                <div class="item-info">
+                  <span class="item-name">${displayName}</span>
+                  <span class="item-cat">${itemCat}</span>
+                </div>
                 <div class="item-price">₹${price}</div>
-                <button class="add-cart-btn" onclick="addToCart('${safeKey}', ${price}, event)">+ Add</button>
               </div>
-            </div>
-            <div class="admin-actions">
-              <button class="action-btn btn-edit" onclick="inlineEdit('${safeKey}')">✏️ Edit</button>
-              <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Del</button>
+              <div class="admin-actions">
+                <button class="action-btn btn-edit" onclick="editItem('${safeKey}')">✏️ Edit</button>
+                <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
+              </div>
             </div>
           </div>
         `);
@@ -255,143 +193,106 @@
       resultsList.innerHTML = htmlBuffer.join('');
     }
 
-    function setCategory(cat) { currentCategory = cat; buildCategories(); displayItems(); }
-
-    function toggleCart() {
-      const modal = document.getElementById('cartModal');
-      modal.style.display = modal.style.display === 'block' ? 'none' : 'block';
-      renderCartItems();
+    function setCategory(cat) {
+      currentCategory = cat;
+      buildCategories();
+      displayItems();
     }
 
-    function addToCart(safeKey, price, event) {
-      const rawKey = decodeSafe(safeKey);
-      const displayName = rawKey.includes(':') ? rawKey.split(':').slice(1).join(':').trim() : rawKey;
-      
-      let existing = cart.find(i => i.rawKey === rawKey);
-      if (existing) existing.qty += 1; 
-      else cart.push({ rawKey, displayName, price: parseFloat(price), qty: 1 }); 
-      
-      document.getElementById('cartCount').innerText = cart.length;
-      
-      if (event && event.target) {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.innerText = "Added!";
-        btn.style.background = "var(--success)";
-        setTimeout(() => { btn.innerText = originalText; btn.style.background = "var(--primary)"; }, 600);
+    // Admin Controls
+    function toggleAdmin() {
+      if (isAdmin) {
+        isAdmin = false;
+        const panel = document.getElementById('adminPanel');
+        if (panel) panel.style.display = 'none';
+        displayItems();
+        return;
+      }
+      if (prompt("Enter Owner PIN:") === ADMIN_PIN) {
+        isAdmin = true;
+        const panel = document.getElementById('adminPanel');
+        if (panel) panel.style.display = 'block';
+        displayItems();
       }
     }
 
-    function updateQty(index, newQty) {
-      if (newQty < 1) cart.splice(index, 1);
-      else cart[index].qty = parseInt(newQty);
-      document.getElementById('cartCount').innerText = cart.length;
-      renderCartItems();
-    }
-
-    function renderCartItems() {
-      const list = document.getElementById('cartItemsList');
-      let cartHtml = [];
-      cart.forEach((item, index) => {
-        const itemTotal = item.price * item.qty;
-        cartHtml.push(`
-          <div class="cart-item">
-            <div style="flex:2;"><strong>${item.displayName}</strong><br>₹${item.price}</div>
-            <div style="flex:1; text-align:center;">
-              <input type="number" class="qty-input" value="${item.qty}" min="0" onchange="updateQty(${index}, this.value)">
-            </div>
-            <div style="flex:1; text-align:right; font-weight:bold;">₹${itemTotal.toFixed(2)}</div>
-            <button onclick="updateQty(${index}, 0)" style="margin-left:10px; color:red; border:none; background:none; font-size:18px; cursor:pointer;">✕</button>
-          </div>
-        `);
-      });
-      list.innerHTML = cartHtml.join('');
-      updateCartTotals();
-    }
-
-    function updateCartTotals() {
-      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      let discountPct = parseFloat(document.getElementById('discountPct').value) || 0;
-      let adjustment = parseFloat(document.getElementById('adjustmentAmt').value) || 0;
-      
-      let discountAmt = subtotal * (discountPct / 100);
-      let grandTotal = subtotal - discountAmt + adjustment;
-
-      document.getElementById('subtotalAmt').innerText = `₹${subtotal.toFixed(2)}`;
-      document.getElementById('grandTotalAmt').innerText = `₹${grandTotal.toFixed(2)}`;
-    }
-
-    function toggleQR() {
-      const isChecked = document.getElementById('qrToggle').checked;
-      document.getElementById('qrImage').style.display = isChecked ? 'block' : 'none';
-    }
-
-    function sendWhatsApp() {
-      const custName = document.getElementById('custName').value.trim() || 'Customer';
-      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      let discountPct = parseFloat(document.getElementById('discountPct').value) || 0;
-      let adjustment = parseFloat(document.getElementById('adjustmentAmt').value) || 0;
-      let discountAmt = subtotal * (discountPct / 100);
-      let grandTotal = subtotal - discountAmt + adjustment;
-
-      let msg = `*RAJ TRADERS - INVOICE*\nCustomer: ${custName}\n\n`;
-      cart.forEach(item => {
-        msg += `▪ ${item.displayName}\n   ${item.qty} pcs x ₹${item.price} = *₹${item.price * item.qty}*\n`;
-      });
-      msg += `\n----------------\n`;
-      msg += `Subtotal: ₹${subtotal}\n`;
-      if (discountPct > 0) msg += `Discount (${discountPct}%): -₹${discountAmt.toFixed(2)}\n`;
-      if (adjustment > 0) msg += `Prev Due: +₹${adjustment}\n`;
-      if (adjustment < 0) msg += `Advance/Paid: -₹${Math.abs(adjustment)}\n`;
-      msg += `*GRAND TOTAL: ₹${grandTotal.toFixed(2)}*\n`;
-      
-      msg += `\nThank you for shopping with us!`;
-
-      const encodedMsg = encodeURIComponent(msg);
-      window.open(`https://wa.me/?text=${encodedMsg}`, '_blank');
-    }
-
-    function clearCart() { 
-      cart = []; 
-      document.getElementById('cartCount').innerText = "0"; 
-      document.getElementById('custName').value = "";
-      document.getElementById('discountPct').value = "0";
-      document.getElementById('adjustmentAmt').value = "0";
-      document.getElementById('qrToggle').checked = false;
-      toggleQR();
-      toggleCart(); 
-    }
-
-    function toggleAdmin() {
-      if (isAdmin) { isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; displayItems(); return; }
-      if (prompt("Enter Owner PIN:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; displayItems(); }
-    }
-    
     function handleAdminCategoryChange() {
-      document.getElementById('newCategoryWrapper').style.display = document.getElementById('adminCategorySelect').value === '__NEW__' ? 'block' : 'none';
+      const select = document.getElementById('adminCategorySelect');
+      const wrapper = document.getElementById('newCategoryWrapper');
+      if (select && wrapper) wrapper.style.display = select.value === '__NEW__' ? 'block' : 'none';
     }
-    
-    async function inlineEdit(safeKey) {
-      const rawKey = decodeSafe(safeKey); const currentPrice = inventory[rawKey];
+
+    // THE FIX: Editing permanently syncs to Google Sheets
+    async function editItem(safeKey) {
+      const rawKey = decodeURIComponent(escape(atob(safeKey)));
+      const currentPrice = inventory[rawKey];
       const newPrice = prompt(`Enter new price for:\n${rawKey}`, currentPrice);
-      if (!newPrice || newPrice === currentPrice) return;
+      
+      if (!newPrice || newPrice == currentPrice || isNaN(newPrice)) return;
+      
       try {
-        inventory[rawKey] = newPrice; displayItems();
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'edit', itemName: rawKey, itemPrice: newPrice }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+        inventory[rawKey] = parseFloat(newPrice);
+        displayItems();
+        localStorage.setItem('raj_traders_fast_cache', JSON.stringify(inventory));
+        await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action: 'edit', itemName: rawKey, itemPrice: parseFloat(newPrice) }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
       } catch (e) { backgroundSync(); }
     }
-    
+
+    // THE FIX: Deleting permanently syncs to Google Sheets
     async function deleteItem(safeKey) {
-      const rawKey = decodeSafe(safeKey);
-      if (!confirm(`Delete "${rawKey}"?`)) return;
+      const rawKey = decodeURIComponent(escape(atob(safeKey)));
+      if (!confirm(`Are you sure you want to delete "${rawKey}"?`)) return;
+      
       try {
-        delete inventory[rawKey]; displayItems(); buildCategories();
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', itemName: rawKey }), headers: { 'Content-Type': 'text/plain;charset=utf-8' } });
-        localStorage.setItem('shop_inventory_cache', JSON.stringify(inventory));
+        delete inventory[rawKey];
+        displayItems();
+        buildCategories();
+        localStorage.setItem('raj_traders_fast_cache', JSON.stringify(inventory));
+        await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action: 'delete', itemName: rawKey }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
       } catch (e) { backgroundSync(); }
     }
-    
+
+    // THE FIX: Saving a new item permanently syncs to Google Sheets
     async function saveNewItem() {
       const select = document.getElementById('adminCategorySelect');
-      let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value            
+      const newCatInput = document.getElementById('newCategoryInput');
+      let cat = select.value === '__NEW__' ? (newCatInput ? newCatInput.value.trim() : '') : select.value;
+      
+      const ni = document.getElementById('itemName');
+      const pi = document.getElementById('itemPrice');
+      const name = ni ? ni.value.trim() : '';
+      const price = pi ? pi.value : '';
+
+      if (!cat || !name || !price || isNaN(price)) return;
+      const fullKey = `${cleanCategory(cat)}: ${name}`;
+
+      try {
+        inventory[fullKey] = parseFloat(price);
+        localStorage.setItem('raj_traders_fast_cache', JSON.stringify(inventory));
+        buildCategories();
+        displayItems();
+        
+        if (ni) ni.value = '';
+        if (pi) pi.value = '';
+        
+        await fetch(API_URL, { 
+          method: 'POST', 
+          body: JSON.stringify({ action: 'edit', itemName: fullKey, itemPrice: parseFloat(price) }),
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        });
+      } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+  </html>
+  
