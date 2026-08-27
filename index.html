@@ -26,6 +26,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;padding:15px;
 .item-card{background:var(--card-bg);padding:14px 16px;margin-bottom:8px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center}
 .item-info{display:flex;flex-direction:column}
 .item-name{font-size:16px;font-weight:600;color:var(--text)}
+.item-subname{font-size:13px;font-weight:500;color:#777;margin-top:2px}
 .item-cat{font-size:12px;color:var(--subtext);margin-top:4px}
 .item-price{font-size:18px;font-weight:700;color:var(--success)}
 .admin-actions{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--border);justify-content:flex-end;gap:10px;width:100%}
@@ -160,19 +161,30 @@ fullDisplayName=parts.slice(1).join(':').trim();
 if(currentCategory!=='All'&&currentCategory!==itemCat)continue;
 const targetText=fullDisplayName.toLowerCase();
 if(queryWords.length>0&&!queryWords.every(w=>targetText.includes(w)))continue;
-let showName=fullDisplayName;
+let primaryName=fullDisplayName;
+let secondaryName="";
 if(fullDisplayName.includes('/')){
 let langParts=fullDisplayName.split('/');
-showName=(currentLang==='mr'&&langParts[1])?langParts[1].trim():langParts[0].trim();
+let enPart=langParts[0].trim();
+let mrPart=langParts[1]?langParts[1].trim():"";
+if(currentLang==='mr'&&mrPart!==""&&isNaN(mrPart)){
+primaryName=mrPart;
+secondaryName=enPart;
+}else{
+primaryName=enPart;
+if(mrPart!=="")secondaryName=mrPart;
+}
 }
 const safeKey=btoa(unescape(encodeURIComponent(rawKey)));
 const price=inventory[rawKey];
+let secondaryHtml=secondaryName?`<span class="item-subname">${secondaryName}</span>`:'';
 htmlBuffer.push(`
 <div class="item-card">
 <div class="item-wrapper">
 <div class="top-row">
 <div class="item-info">
-<span class="item-name">${showName}</span>
+<span class="item-name">${primaryName}</span>
+${secondaryHtml}
 <span class="item-cat">${itemCat}</span>
 </div>
 <div class="item-price">₹${price}</div>
@@ -295,5 +307,5 @@ headers:{'Content-Type':'text/plain;charset=utf-8'}
 document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
-  </html>
-  
+</html>
+
