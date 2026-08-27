@@ -7,8 +7,6 @@
 <meta name="theme-color" content="#1a5fb4">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Raj Traders">
-<link rel="icon" href="icon.jpg">
-<link rel="apple-touch-icon" href="icon.jpg">
 <style>
 :root{--primary:#1a5fb4;--bg:#f4f4f9;--card-bg:#ffffff;--text:#222222;--subtext:#666666;--success:#28a745;--border:#e0e0e0;--danger:#dc3545}
 body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;padding:15px;max-width:500px;margin:0 auto;background-color:var(--bg);color:var(--text)}
@@ -60,13 +58,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;padding:15px;
 <div id="newCategoryWrapper" style="display:none;">
 <input type="text" id="newCategoryInput" class="admin-input" placeholder="Type New Category Name">
 </div>
-<input type="text" id="itemNameEn" class="admin-input" placeholder="Item Name (English) e.g. Brass Tap">
-<div style="display:flex;gap:8px;margin-bottom:10px;">
-<input type="text" id="itemNameMr" class="admin-input" placeholder="Marathi" style="margin-bottom:0;">
-<button class="action-btn btn-edit" style="white-space:nowrap;" onclick="autoTranslate()">🔄 Auto</button>
-</div>
+<!-- Only one English input box now! -->
+<input type="text" id="itemNameEn" class="admin-input" placeholder="Item Name (e.g. Bipcock)">
 <input type="number" id="itemPrice" class="admin-input" placeholder="Price">
-<button class="admin-save-btn" onclick="saveNewItem()">Save to Shop</button>
+<button class="admin-save-btn" id="saveBtn" onclick="saveNewItem()">Save to Shop</button>
 </div>
 <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
 <script>
@@ -77,235 +72,266 @@ let currentCategory='All';
 let uniqueCategories=new Set();
 let isAdmin=false;
 let currentLang='en';
+
 function init(){
-const cached=localStorage.getItem('raj_traders_fast_cache');
-if(cached){
-try{
-inventory=JSON.parse(cached);
-buildCategories();
-displayItems();
-}catch(e){
-localStorage.removeItem('raj_traders_fast_cache');
+  const cached=localStorage.getItem('raj_traders_fast_cache');
+  if(cached){
+    try{
+      inventory=JSON.parse(cached);
+      buildCategories();
+      displayItems();
+    }catch(e){
+      localStorage.removeItem('raj_traders_fast_cache');
+    }
+  }
+  backgroundSync();
 }
-}
-backgroundSync();
-}
+
 async function backgroundSync(){
-const status=document.getElementById('syncStatus');
-if(status)status.innerText="🔄";
-try{
-const response=await fetch(API_URL);
-const newData=await response.json();
-if(JSON.stringify(inventory)!==JSON.stringify(newData)){
-inventory=newData;
-localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
-buildCategories();
-displayItems();
+  const status=document.getElementById('syncStatus');
+  if(status)status.innerText="🔄";
+  try{
+    const response=await fetch(API_URL);
+    const newData=await response.json();
+    if(JSON.stringify(inventory)!==JSON.stringify(newData)){
+      inventory=newData;
+      localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
+      buildCategories();
+      displayItems();
+    }
+    if(status)status.innerText="🟢";
+  }catch(error){
+    if(status)status.innerText="🟡";
+  }
 }
-if(status)status.innerText="🟢";
-}catch(error){
-if(status)status.innerText="🟡";
-}
-}
+
 function setLang(lang){
-currentLang=lang;
-document.getElementById('btn-en').classList.remove('active');
-document.getElementById('btn-mr').classList.remove('active');
-document.getElementById('btn-'+lang).classList.add('active');
-const searchBox=document.getElementById('searchBar');
-if(searchBox){
-searchBox.placeholder=lang==='en'?"Search items instantly...":"आयटम शोधा...";
+  currentLang=lang;
+  document.getElementById('btn-en').classList.remove('active');
+  document.getElementById('btn-mr').classList.remove('active');
+  document.getElementById('btn-'+lang).classList.add('active');
+  const searchBox=document.getElementById('searchBar');
+  if(searchBox){
+    searchBox.placeholder=lang==='en'?"Search items instantly...":"आयटम शोधा...";
+  }
+  displayItems();
 }
-displayItems();
-}
+
 function cleanCategory(catStr){
-if(!catStr)return'General';
-let clean=catStr.toString().trim();
-return clean.charAt(0).toUpperCase()+clean.slice(1).toLowerCase();
+  if(!catStr)return'General';
+  let clean=catStr.toString().trim();
+  return clean.charAt(0).toUpperCase()+clean.slice(1).toLowerCase();
 }
+
 function buildCategories(){
-uniqueCategories.clear();
-uniqueCategories.add('All');
-for(let item in inventory){
-if(item.includes(':'))uniqueCategories.add(cleanCategory(item.split(':')[0]));
-else uniqueCategories.add('General');
+  uniqueCategories.clear();
+  uniqueCategories.add('All');
+  for(let item in inventory){
+    if(item.includes(':'))uniqueCategories.add(cleanCategory(item.split(':')[0]));
+    else uniqueCategories.add('General');
+  }
+  let catHtml=[];
+  uniqueCategories.forEach(cat=>{
+    catHtml.push(`<button class="cat-btn ${cat===currentCategory?'active':''}" onclick="setCategory('${cat}')">${cat}</button>`);
+  });
+  const catBar=document.getElementById('categoryBar');
+  if(catBar)catBar.innerHTML=catHtml.join('');
+  let adminHtml=[];
+  uniqueCategories.forEach(cat=>{if(cat!=='All')adminHtml.push(`<option value="${cat}">${cat}</option>`);});
+  adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
+  const adminSelect=document.getElementById('adminCategorySelect');
+  if(adminSelect)adminSelect.innerHTML=adminHtml.join('');
 }
-let catHtml=[];
-uniqueCategories.forEach(cat=>{
-catHtml.push(`<button class="cat-btn ${cat===currentCategory?'active':''}" onclick="setCategory('${cat}')">${cat}</button>`);
-});
-const catBar=document.getElementById('categoryBar');
-if(catBar)catBar.innerHTML=catHtml.join('');
-let adminHtml=[];
-uniqueCategories.forEach(cat=>{if(cat!=='All')adminHtml.push(`<option value="${cat}">${cat}</option>`);});
-adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
-const adminSelect=document.getElementById('adminCategorySelect');
-if(adminSelect)adminSelect.innerHTML=adminHtml.join('');
-}
+
 function displayItems(){
-const searchBar=document.getElementById('searchBar');
-const queryInput=searchBar?searchBar.value.trim().toLowerCase():'';
-const queryWords=queryInput.split(/\s+/).filter(w=>w.length>0);
-const resultsList=document.getElementById('resultsList');
-if(!resultsList)return;
-resultsList.className=isAdmin?'edit-mode':'';
-let htmlBuffer=[];
-for(let rawKey in inventory){
-let itemCat="General";
-let fullDisplayName=rawKey;
-if(rawKey.includes(':')){
-const parts=rawKey.split(':');
-itemCat=cleanCategory(parts[0]);
-fullDisplayName=parts.slice(1).join(':').trim();
+  const searchBar=document.getElementById('searchBar');
+  const queryInput=searchBar?searchBar.value.trim().toLowerCase():'';
+  const queryWords=queryInput.split(/\s+/).filter(w=>w.length>0);
+  const resultsList=document.getElementById('resultsList');
+  if(!resultsList)return;
+  
+  resultsList.className=isAdmin?'edit-mode':'';
+  let htmlBuffer=[];
+
+  for(let rawKey in inventory){
+    let itemCat="General";
+    let fullDisplayName=rawKey;
+    if(rawKey.includes(':')){
+      const parts=rawKey.split(':');
+      itemCat=cleanCategory(parts[0]);
+      fullDisplayName=parts.slice(1).join(':').trim();
+    }
+    
+    if(currentCategory!=='All'&&currentCategory!==itemCat)continue;
+    
+    const targetText=fullDisplayName.toLowerCase();
+    if(queryWords.length>0&&!queryWords.every(w=>targetText.includes(w)))continue;
+    
+    let primaryName=fullDisplayName;
+    let secondaryName="";
+    
+    if(fullDisplayName.includes('/')){
+      let langParts=fullDisplayName.split('/');
+      let enPart=langParts[0].trim();
+      let mrPart=langParts[1]?langParts[1].trim():"";
+      
+      // Smart Fallback: If in Marathi mode, show Marathi Big, English Small.
+      if(currentLang==='mr'&&mrPart!==""&&isNaN(mrPart)){
+        primaryName=mrPart;
+        secondaryName=enPart;
+      }else{
+        primaryName=enPart;
+        if(mrPart!==""&&mrPart!==enPart)secondaryName=mrPart;
+      }
+    }
+    
+    const safeKey=btoa(unescape(encodeURIComponent(rawKey)));
+    const price=inventory[rawKey];
+    let secondaryHtml=secondaryName?`<span class="item-subname">${secondaryName}</span>`:'';
+    
+    htmlBuffer.push(`
+    <div class="item-card">
+      <div class="item-wrapper">
+        <div class="top-row">
+          <div class="item-info">
+            <span class="item-name">${primaryName}</span>
+            ${secondaryHtml}
+            <span class="item-cat">${itemCat}</span>
+          </div>
+          <div class="item-price">₹${price}</div>
+        </div>
+        <div class="admin-actions">
+          <button class="action-btn btn-edit" onclick="editItem('${safeKey}')">✏️ Edit</button>
+          <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
+        </div>
+      </div>
+    </div>
+    `);
+  }
+  resultsList.innerHTML=htmlBuffer.join('');
 }
-if(currentCategory!=='All'&&currentCategory!==itemCat)continue;
-const targetText=fullDisplayName.toLowerCase();
-if(queryWords.length>0&&!queryWords.every(w=>targetText.includes(w)))continue;
-let primaryName=fullDisplayName;
-let secondaryName="";
-if(fullDisplayName.includes('/')){
-let langParts=fullDisplayName.split('/');
-let enPart=langParts[0].trim();
-let mrPart=langParts[1]?langParts[1].trim():"";
-if(currentLang==='mr'&&mrPart!==""&&isNaN(mrPart)){
-primaryName=mrPart;
-secondaryName=enPart;
-}else{
-primaryName=enPart;
-if(mrPart!=="")secondaryName=mrPart;
-}
-}
-const safeKey=btoa(unescape(encodeURIComponent(rawKey)));
-const price=inventory[rawKey];
-let secondaryHtml=secondaryName?`<span class="item-subname">${secondaryName}</span>`:'';
-htmlBuffer.push(`
-<div class="item-card">
-<div class="item-wrapper">
-<div class="top-row">
-<div class="item-info">
-<span class="item-name">${primaryName}</span>
-${secondaryHtml}
-<span class="item-cat">${itemCat}</span>
-</div>
-<div class="item-price">₹${price}</div>
-</div>
-<div class="admin-actions">
-<button class="action-btn btn-edit" onclick="editItem('${safeKey}')">✏️ Edit</button>
-<button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
-</div>
-</div>
-</div>
-`);
-}
-resultsList.innerHTML=htmlBuffer.join('');
-}
+
 function setCategory(cat){
-currentCategory=cat;
-buildCategories();
-displayItems();
+  currentCategory=cat;
+  buildCategories();
+  displayItems();
 }
+
 function toggleAdmin(){
-if(isAdmin){
-isAdmin=false;
-const panel=document.getElementById('adminPanel');
-if(panel)panel.style.display='none';
-displayItems();
-return;
+  if(isAdmin){
+    isAdmin=false;
+    const panel=document.getElementById('adminPanel');
+    if(panel)panel.style.display='none';
+    displayItems();
+    return;
+  }
+  if(prompt("PIN:")===ADMIN_PIN){
+    isAdmin=true;
+    const panel=document.getElementById('adminPanel');
+    if(panel)panel.style.display='block';
+    displayItems();
+  }
 }
-if(prompt("PIN:")===ADMIN_PIN){
-isAdmin=true;
-const panel=document.getElementById('adminPanel');
-if(panel)panel.style.display='block';
-displayItems();
-}
-}
+
 function handleAdminCategoryChange(){
-const select=document.getElementById('adminCategorySelect');
-const wrapper=document.getElementById('newCategoryWrapper');
-if(select&&wrapper)wrapper.style.display=select.value==='__NEW__'?'block':'none';
+  const select=document.getElementById('adminCategorySelect');
+  const wrapper=document.getElementById('newCategoryWrapper');
+  if(select&&wrapper)wrapper.style.display=select.value==='__NEW__'?'block':'none';
 }
-async function autoTranslate(){
-const enInput=document.getElementById('itemNameEn').value.trim();
-const mrInput=document.getElementById('itemNameMr');
-if(!enInput){
-alert("Type English name first.");
-return;
-}
-mrInput.value="Translating...";
-try{
-const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=mr&dt=t&q='+encodeURIComponent(enInput);
-const response=await fetch(url);
-const data=await response.json();
-mrInput.value=data[0][0][0];
-}catch(e){
-mrInput.value="";
-alert("Translation failed.");
-}
-}
+
 async function editItem(safeKey){
-const rawKey=decodeURIComponent(escape(atob(safeKey)));
-const currentPrice=inventory[rawKey];
-const newPrice=prompt(`New price:\n${rawKey}`,currentPrice);
-if(!newPrice||newPrice==currentPrice||isNaN(newPrice))return;
-try{
-inventory[rawKey]=parseFloat(newPrice);
-displayItems();
-localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
-await fetch(API_URL,{
-method:'POST',
-body:JSON.stringify({action:'edit',itemName:rawKey,itemPrice:parseFloat(newPrice)}),
-headers:{'Content-Type':'text/plain;charset=utf-8'}
-});
-}catch(e){backgroundSync();}
+  const rawKey=decodeURIComponent(escape(atob(safeKey)));
+  const currentPrice=inventory[rawKey];
+  const newPrice=prompt(`New price:\n${rawKey}`,currentPrice);
+  if(!newPrice||newPrice==currentPrice||isNaN(newPrice))return;
+  try{
+    inventory[rawKey]=parseFloat(newPrice);
+    displayItems();
+    localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
+    await fetch(API_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'edit',itemName:rawKey,itemPrice:parseFloat(newPrice)}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}
+    });
+  }catch(e){backgroundSync();}
 }
+
 async function deleteItem(safeKey){
-const rawKey=decodeURIComponent(escape(atob(safeKey)));
-if(!confirm(`Delete "${rawKey}"?`))return;
-try{
-delete inventory[rawKey];
-displayItems();
-buildCategories();
-localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
-await fetch(API_URL,{
-method:'POST',
-body:JSON.stringify({action:'delete',itemName:rawKey}),
-headers:{'Content-Type':'text/plain;charset=utf-8'}
-});
-}catch(e){backgroundSync();}
+  const rawKey=decodeURIComponent(escape(atob(safeKey)));
+  if(!confirm(`Delete "${rawKey}"?`))return;
+  try{
+    delete inventory[rawKey];
+    displayItems();
+    buildCategories();
+    localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
+    await fetch(API_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'delete',itemName:rawKey}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}
+    });
+  }catch(e){backgroundSync();}
 }
+
+// INVISIBLE AUTO-TRANSLATE BUILT INTO THE SAVE BUTTON
 async function saveNewItem(){
-const select=document.getElementById('adminCategorySelect');
-const newCatInput=document.getElementById('newCategoryInput');
-let cat=select.value==='__NEW__'?(newCatInput?newCatInput.value.trim():''):select.value;
-const enInput=document.getElementById('itemNameEn');
-const mrInput=document.getElementById('itemNameMr');
-const pi=document.getElementById('itemPrice');
-const nameEn=enInput?enInput.value.trim():'';
-const nameMr=mrInput?mrInput.value.trim():'';
-const price=pi?pi.value:'';
-if(!cat||!nameEn||!price||isNaN(price))return;
-let finalName=nameEn;
-if(nameMr!==""){
-finalName=nameEn+" / "+nameMr;
+  const select=document.getElementById('adminCategorySelect');
+  const newCatInput=document.getElementById('newCategoryInput');
+  let cat=select.value==='__NEW__'?(newCatInput?newCatInput.value.trim():''):select.value;
+  
+  const enInput=document.getElementById('itemNameEn');
+  const pi=document.getElementById('itemPrice');
+  const saveBtn = document.getElementById('saveBtn');
+  
+  const nameEn=enInput?enInput.value.trim():'';
+  const price=pi?pi.value:'';
+
+  if(!cat||!nameEn||!price||isNaN(price))return;
+  
+  saveBtn.innerText = "Translating & Saving...";
+  saveBtn.style.opacity = "0.7";
+
+  let finalName=nameEn;
+  
+  // Invisible Google Translate Call
+  try {
+    const url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=mr&dt=t&q='+encodeURIComponent(nameEn);
+    const response=await fetch(url);
+    const data=await response.json();
+    let translatedText=data[0][0][0];
+    
+    // Append Marathi if translation succeeds and isn't just numbers
+    if(translatedText && translatedText.toLowerCase() !== nameEn.toLowerCase() && isNaN(translatedText)) {
+      finalName = nameEn + " / " + translatedText;
+    }
+  } catch (e) {
+    console.log("Translation skipped.");
+  }
+  
+  const fullKey=`${cleanCategory(cat)}: ${finalName}`;
+
+  try{
+    inventory[fullKey]=parseFloat(price);
+    localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
+    buildCategories();
+    displayItems();
+    
+    if(enInput)enInput.value='';
+    if(pi)pi.value='';
+    saveBtn.innerText = "Save to Shop";
+    saveBtn.style.opacity = "1";
+    
+    await fetch(API_URL,{
+      method:'POST',
+      body:JSON.stringify({action:'edit',itemName:fullKey,itemPrice:parseFloat(price)}),
+      headers:{'Content-Type':'text/plain;charset=utf-8'}
+    });
+  }catch(e){
+    saveBtn.innerText = "Save to Shop";
+    saveBtn.style.opacity = "1";
+  }
 }
-const fullKey=`${cleanCategory(cat)}: ${finalName}`;
-try{
-inventory[fullKey]=parseFloat(price);
-localStorage.setItem('raj_traders_fast_cache',JSON.stringify(inventory));
-buildCategories();
-displayItems();
-if(enInput)enInput.value='';
-if(mrInput)mrInput.value='';
-if(pi)pi.value='';
-await fetch(API_URL,{
-method:'POST',
-body:JSON.stringify({action:'edit',itemName:fullKey,itemPrice:parseFloat(price)}),
-headers:{'Content-Type':'text/plain;charset=utf-8'}
-});
-}catch(e){}
-}
+
 document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
-
