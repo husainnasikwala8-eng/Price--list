@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Raj Traders</title>
+  <title>Raj Traders Catalog</title>
   
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=">
   <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=">
@@ -12,6 +12,7 @@
   <style>
     :root { --primary: #1a5fb4; --bg: #f4f4f9; --card-bg: #ffffff; --text: #222222; --subtext: #666666; --success: #28a745; --border: #e0e0e0; --danger: #dc3545; }
     body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 500px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
+    
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .header h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     .header-logo { width: 28px; height: 28px; border-radius: 6px; }
@@ -27,18 +28,23 @@
     
     .search-input { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; }
     
-    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
-    .item-thumb { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; margin-right: 12px; flex-shrink: 0; background: #eee; border: 1px solid #ddd; cursor: pointer; transition: transform 0.2s; display: block; }
-    .item-thumb:active { transform: scale(0.95); }
+    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; }
+    
+    /* Catalog Photo Thumbnails */
+    .item-thumb-container { width: 60px; height: 60px; flex-shrink: 0; background: #eef2f5; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
+    .item-thumb-container:active { transform: scale(0.95); }
+    .item-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .item-thumb-placeholder { font-size: 24px; }
+
+    .item-wrapper { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+    .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .item-info { display: flex; flex-direction: column; flex: 1; }
     .item-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
     .item-cat { font-size: 12px; color: var(--subtext); margin-top: 4px; }
-    .item-price { font-size: 18px; font-weight: 700; color: var(--success); white-space: nowrap; margin-left: 10px; }
+    .item-price { font-size: 18px; font-weight: 700; color: var(--success); white-space: nowrap; }
     
     .admin-actions { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); justify-content: flex-end; gap: 10px; width: 100%; }
     .edit-mode .admin-actions { display: flex; }
-    .item-wrapper { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
     .action-btn { padding: 6px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; flex: 1; text-align: center;}
     .btn-edit { background: #e0f0ff; color: var(--primary); }
     .btn-del { background: #ffe0e0; color: var(--danger); }
@@ -52,19 +58,19 @@
     .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;}
     .modal-content label { font-size: 12px; font-weight: bold; color: var(--subtext); margin-bottom: 4px; display: block; }
 
-    .img-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-    .img-modal-content { max-width: 100%; max-height: 85vh; border-radius: 12px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    /* Enlarged Photo Modal */
+    .img-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+    .img-modal-content { max-width: 95vw; max-height: 85vh; border-radius: 12px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .img-modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
 
     .secret-lock { text-align: center; margin-top: 40px; font-size: 22px; opacity: 0.15; padding: 10px; cursor: pointer; }
-    #errorBox { display: none; background: #ffe0e0; color: #dc3545; padding: 15px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; font-weight: 600; border: 1px solid #dc3545; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <h2>
-      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=" class="header-logo" alt="Logo">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=" class="header-logo" alt="R">
       Raj Traders
     </h2>
     <span class="sync-btn" id="syncStatus" onclick="backgroundSync()">🟢 Ready</span>
@@ -74,12 +80,8 @@
     <button id="langToggle" class="lang-btn" onclick="toggleLanguage()">मराठी</button>
   </div>
   
-  <div id="errorBox"></div>
-
   <div class="category-bar" id="categoryBar"></div>
-  
-  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search items..." oninput="displayItems()">
-  
+  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search catalog..." oninput="displayItems()">
   <div id="resultsList"></div>
 
   <div class="admin-panel" id="adminPanel">
@@ -90,25 +92,21 @@
     </div>
     <input type="text" id="itemName" class="admin-input" placeholder="Item Name (e.g. Brass Tap)">
     <input type="number" id="itemPrice" class="admin-input" placeholder="Price (₹)">
-    <input type="text" id="newPhoto" class="admin-input" placeholder="Photo Link (Optional)">
-    <button class="admin-save-btn" id="saveNewBtn" onclick="saveNewItem()">Save to Shop</button>
+    <input type="text" id="newPhoto" class="admin-input" placeholder="Photo Link (Google Drive / Direct URL)">
+    <button class="admin-save-btn" id="saveNewBtn" onclick="saveNewItem()">Save to Catalog</button>
   </div>
 
   <div id="editModal" class="modal">
     <div class="modal-content">
       <h3>Edit Item Details</h3>
       <input type="hidden" id="editItemKey">
-      
       <label>English Name (Identifier)</label>
       <input type="text" id="editName" class="admin-input" readonly style="background:#f0f0f0; color:#666;">
-      
       <label>Price (₹)</label>
       <input type="number" id="editPrice" class="admin-input">
-      
       <label>Photo Link</label>
-      <input type="text" id="editPhoto" class="admin-input" placeholder="Paste image link here">
-      
-      <label>Custom Marathi Name (Optional Override)</label>
+      <input type="text" id="editPhoto" class="admin-input" placeholder="Paste image URL here">
+      <label>Custom Marathi Name (Optional)</label>
       <input type="text" id="editMarathi" class="admin-input" placeholder="e.g. पितळी टॅप">
       
       <div style="display:flex; gap:10px; margin-top:15px;">
@@ -127,7 +125,7 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
-    const ADMIN_PIN = "1234";
+    const ADMIN_PIN = "2241";
 
     let items = [];
     let itemsByKey = {};
@@ -138,132 +136,58 @@
     let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
 
     const MARATHI_DICT = {
-      "plumbing": "प्लंबिंग",
-      "paints": "पेंट",
-      "paint": "पेंट",
-      "fasteners": "फास्टनर्स",
-      "hardware": "हार्डवेअर",
-      "construction": "बांधकाम",
-      "brass": "ब्रास",
-      "iron": "लोखंड",
-      "steel": "स्टील",
-      "tap": "टॅप",
-      "bibcock": "बिबकॉक",
-      "valve": "व्हॉल्व्ह",
-      "ball valve": "बॉल व्हॉल्व्ह",
-      "ball": "बॉल",
-      "pipe": "पाईप",
-      "hose": "होज",
-      "clip": "क्लिप",
-      "joint": "जॉइंट",
-      "wrench": "पाना",
-      "brush": "ब्रश",
-      "roller": "रोलर",
-      "thinner": "थिनर",
-      "tie": "टाय",
-      "light": "लाईट",
-      "heavy": "हेवी",
-      "hammer": "हातोडी",
-      "bolt": "बोल्ट",
-      "nut": "नट",
-      "screw": "स्क्रू",
-      "nail": "खिळा",
-      "wire": "वायर",
-      "mesh": "जाळी",
-      "hinge": "बिजागरी",
-      "lock": "कुलूप",
-      "handle": "हँडल",
-      "white": "पांढरा",
-      "black": "काळा",
-      "red": "लाल",
-      "blue": "निळा",
-      "yellow": "पिवळा"
+      "plumbing": "प्लंबिंग", "paints": "पेंट", "paint": "पेंट", "fasteners": "फास्टनर्स", "hardware": "हार्डवेअर", 
+      "construction": "बांधकाम", "brass": "ब्रास", "iron": "लोखंड", "steel": "स्टील", "tap": "टॅप", 
+      "bibcock": "बिबकॉक", "valve": "व्हॉल्व्ह", "ball": "बॉल", "pipe": "पाईप", "hose": "होज", "clip": "क्लिप", 
+      "joint": "जॉइंट", "wrench": "पाना", "brush": "ब्रश", "roller": "रोलर", "hammer": "हातोडी", "bolt": "बोल्ट", 
+      "nut": "नट", "screw": "स्क्रू", "nail": "खिळा", "wire": "वायर", "mesh": "जाळी", "hinge": "बिजागरी", 
+      "lock": "कुलूप", "handle": "हँडल", "white": "पांढरा", "black": "काळा", "red": "लाल", "blue": "निळा", "yellow": "पिवळा"
     };
 
-    function showError(msg) {
-      const errBox = document.getElementById('errorBox');
-      errBox.style.display = 'block';
-      errBox.innerText = "Error: " + msg;
-    }
-
-    function hideError() {
-      document.getElementById('errorBox').style.display = 'none';
+    function isPureSizeToken(raw) {
+      if (/\d/.test(raw)) return true;
+      const units = ['mm','cm','m','inch','ft','kg','g','lit','ml','no','w','watt'];
+      return units.includes(raw.toLowerCase().replace(/[^a-z]/g, ''));
     }
 
     function transliterateWord(rawWord) {
       const w = rawWord.toLowerCase();
       if (MARATHI_DICT[w]) return MARATHI_DICT[w];
-
-      const consonants = [
-        ['kh','ख'],['gh','घ'],['chh','छ'],['ch','च'],['jh','झ'],
-        ['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],
-        ['k','क'],['g','ग'],['j','ज'],['t','ट'],['d','ड'],['n','न'],
-        ['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],
-        ['v','व'],['w','व'],['s','स'],['h','ह'],['f','फ'],['z','झ'],['c','क']
-      ];
+      const consonants = [['kh','ख'],['gh','घ'],['chh','छ'],['ch','च'],['jh','झ'],['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],['k','क'],['g','ग'],['j','ज'],['t','ट'],['d','ड'],['n','न'],['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],['v','व'],['w','व'],['s','स'],['h','ह'],['f','फ'],['z','झ'],['c','क']];
       const vowelsIndep = [['aa','आ'],['ee','ई'],['oo','ऊ'],['ai','ऐ'],['au','औ'],['a','अ'],['i','इ'],['u','उ'],['e','ए'],['o','ओ']];
       const vowelsMatra = [['aa','ा'],['ee','ी'],['oo','ू'],['ai','ै'],['au','ौ'],['a',''],['i','ि'],['u','ु'],['e','े'],['o','ो']];
-
-      let result = '';
-      let i = 0;
+      let result = '', i = 0;
       while (i < w.length) {
         let matchedCons = null;
-        for (const pair of consonants) {
-          if (w.startsWith(pair[0], i)) { matchedCons = pair; break; }
-        }
+        for (const pair of consonants) if (w.startsWith(pair[0], i)) { matchedCons = pair; break; }
         if (matchedCons) {
           i += matchedCons[0].length;
           let matchedVowel = null;
-          for (const pair of vowelsMatra) {
-            if (pair[0] && w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
-          }
-          if (matchedVowel) {
-            result += matchedCons[1] + matchedVowel[1];
-            i += matchedVowel[0].length;
-          } else {
-            result += matchedCons[1];
-          }
+          for (const pair of vowelsMatra) if (pair[0] && w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedCons[1] + matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += matchedCons[1]; }
         } else {
           let matchedVowel = null;
-          for (const pair of vowelsIndep) {
-            if (w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
-          }
-          if (matchedVowel) {
-            result += matchedVowel[1];
-            i += matchedVowel[0].length;
-          } else {
-            result += w[i]; 
-            i += 1;
-          }
+          for (const pair of vowelsIndep) if (w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += w[i]; i += 1; }
         }
       }
       return result.trim() === '' ? rawWord : result; 
-    }
-
-    function isPureSizeToken(raw) {
-      if (/\d/.test(raw)) return true;
-      const stripped = raw.toLowerCase().replace(/[^a-z]/g, '');
-      const units = ['mm','cm','m','inch','ft','kg','g','lit','ml','no','w','watt'];
-      return units.includes(stripped);
     }
 
     function transliterateName(text) {
       if (!text) return "";
       const lowerFull = text.toLowerCase().trim();
       if (MARATHI_DICT[lowerFull]) return MARATHI_DICT[lowerFull];
-
       return text.split(/\s+/).map(tok => {
         if (isPureSizeToken(tok)) return tok;
-        
         const match = tok.match(/^([^a-zA-Z0-9]*)([a-zA-Z0-9.-]+)([^a-zA-Z0-9]*)$/);
         let prefix = "", core = tok, suffix = "";
         if (match) { prefix = match[1]; core = match[2]; suffix = match[3]; }
-
         let cleanCore = core.toLowerCase().replace(/[^a-z]/g, '');
         if (!cleanCore) return tok; 
-
-        let translated = MARATHI_DICT[cleanCore] ? MARATHI_DICT[cleanCore] : transliterateWord(cleanCore);
-        return prefix + translated + suffix;
+        return prefix + (MARATHI_DICT[cleanCore] || transliterateWord(cleanCore)) + suffix;
       }).join(' ');
     }
 
@@ -274,7 +198,43 @@
       return missing.length ? (marathiText.trim() + ' ' + missing.join(' ')) : marathiText;
     }
 
-    function computeMarathiFields() {
+    function fixImageLink(url) {
+      if (!url || typeof url !== 'string') return '';
+      let cleanUrl = url.trim();
+      const driveMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/) || cleanUrl.match(/id=([a-zA-Z0-9-_]+)/);
+      if (cleanUrl.includes('drive.google.com') && driveMatch) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+      }
+      return cleanUrl;
+    }
+
+    function normalizeRawItem(raw) {
+      if (typeof raw !== 'object' || raw === null) return null;
+      const getVal = (keys) => {
+        for (let k of Object.keys(raw)) {
+          let cleanK = k.toString().toLowerCase().trim();
+          if (keys.some(p => cleanK.includes(p))) return raw[k];
+        }
+        return '';
+      };
+      let name = getVal(['item name', 'name', 'item', 'key']);
+      if (!name && Object.keys(raw).length > 0) name = raw[Object.keys(raw)[0]];
+      if (!name) return null;
+      let category = getVal(['category', 'cat']);
+      if (!category && name.toString().includes(':')) {
+        const parts = name.toString().split(':');
+        category = parts[0].trim(); name = parts.slice(1).join(':').trim();
+      }
+      return {
+        key: name.toString().trim(),
+        category: (category || 'General').toString().charAt(0).toUpperCase() + (category || 'General').toString().slice(1).toLowerCase(),
+        name: name.toString().trim(),
+        price: getVal(['price', 'rate', 'cost']),
+        marathi: getVal(['marathi']).toString().trim(),
+        photo: fixImageLink(getVal(['photo', 'image', 'link', 'url', 'pic']))
+      };
+    }
+      function computeMarathiFields() {
       const catCache = {};
       items.forEach(item => {
         item._marathiName = item.marathi ? ensureSizePreserved(item.marathi, item.name) : transliterateName(item.name);
@@ -283,87 +243,21 @@
       categoryMarathiCache = catCache;
     }
 
-    function fixImageLink(url) {
-        if (!url || typeof url !== 'string') return '';
-        const driveMatch = url.match(/\/d\/([a-zA-Z0-9-_]+)/) || url.match(/id=([a-zA-Z0-9-_]+)/);
-        if (url.includes('drive.google.com') && driveMatch) {
-            return `https://drive.google.com/uc?id=${driveMatch[1]}`;
-        }
-        return url.trim();
-    }
-
-    function normalizeRawItem(raw) {
-      if (typeof raw !== 'object' || raw === null) return null;
-      const get = (...keys) => {
-        for (const k of keys) { if (raw[k] !== undefined && raw[k] !== null && raw[k] !== '') return raw[k]; }
-        return '';
-      };
-      
-      let name = get('Item Name', 'name', 'Name', 'itemName', 'ITEM NAME', 'key');
-      if (!name && Object.keys(raw).length > 0) name = raw[Object.keys(raw)[0]]; 
-      if (!name) return null;
-
-      let category = get('Category', 'category');
-      if ((!category) && name.toString().includes(':')) {
-        const parts = name.toString().split(':');
-        category = parts[0].trim();
-        name = parts.slice(1).join(':').trim();
-      }
-      if (!category) category = 'General';
-
-      return {
-        key: name.toString(),
-        category: category.charAt(0).toUpperCase() + category.slice(1).toLowerCase(),
-        name: name.toString(),
-        price: get('Price', 'price', 'PRICE'),
-        marathi: get('Name (Marathi)', 'Marathi', 'marathiName', 'marathi').toString().trim(),
-        photo: fixImageLink(get('Photo Link', 'Photo link', 'Photo', 'photoUrl', 'photo'))
-      };
-    }
-
-    function normalizeInventory(data) {
-      let rawList = [];
-      if (Array.isArray(data)) rawList = data;
-      else if (typeof data === 'object' && data !== null) rawList = Object.keys(data).map(k => ({ key: k, price: data[k] }));
-      return rawList.map(normalizeRawItem).filter(Boolean);
-    }
-
-    function applyItems(newItems) {
-      items = newItems;
-      itemsByKey = {};
-      items.forEach(it => { itemsByKey[it.key] = it; });
-      computeMarathiFields();
-    }
-
-    function persistCache() { try { localStorage.setItem('raj_traders_fast_cache', JSON.stringify(items)); } catch (e) {} }
-
-    function init() {
-      updateLangUI();
-      const cached = localStorage.getItem('raj_traders_fast_cache');
-      if (cached) {
-        try { applyItems(normalizeInventory(JSON.parse(cached))); buildCategories(); displayItems(); } 
-        catch (e) { localStorage.removeItem('raj_traders_fast_cache'); }
-      }
-      backgroundSync();
-    }
-        async function backgroundSync() {
+    async function backgroundSync() {
       const status = document.getElementById('syncStatus');
       if (status) status.innerText = "🔄 Syncing...";
-      hideError();
       try {
         const response = await fetch(API_URL);
-        if (!response.ok) throw new Error(`Server status ${response.status}`);
-        const text = await response.text();
-        let raw;
-        try { raw = JSON.parse(text); } catch (err) { throw new Error("Google Apps Script returned HTML instead of JSON."); }
-        const normalized = normalizeInventory(raw);
-        if (JSON.stringify(normalized) !== JSON.stringify(items)) {
-          applyItems(normalized); persistCache(); buildCategories(); displayItems();
-        }
+        const rawData = await response.json();
+        items = rawData.map(normalizeRawItem).filter(Boolean);
+        itemsByKey = {};
+        items.forEach(it => { itemsByKey[it.key] = it; });
+        computeMarathiFields();
+        buildCategories();
+        displayItems();
         if (status) status.innerText = "🟢 Live";
       } catch (error) {
-        if (status) status.innerText = "🟡 Offline Mode";
-        showError(error.message);
+        if (status) status.innerText = "🟡 Error Loading";
       }
     }
 
@@ -373,10 +267,11 @@
       items.forEach(item => uniqueCategories.add(item.category));
       let catHtml = [];
       uniqueCategories.forEach(cat => {
-        const label = cat === 'All' ? (currentLang === 'mr' ? 'सर्व' : 'All') : (currentLang === 'mr' ? (categoryMarathiCache[cat] || cat) : cat);
+        let label = cat === 'All' ? (currentLang === 'mr' ? 'सर्व' : 'All') : (currentLang === 'mr' ? (categoryMarathiCache[cat] || cat) : cat);
         catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${label}</button>`);
       });
       document.getElementById('categoryBar').innerHTML = catHtml.join('');
+      
       let adminHtml = [];
       uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${cat}">${cat}</option>`); });
       adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
@@ -384,30 +279,35 @@
     }
 
     function displayItems() {
-      const queryInput = document.getElementById('searchBar').value.trim().toLowerCase();
-      const queryWords = queryInput.split(/\s+/).filter(w => w.length > 0);
+      const queryWords = document.getElementById('searchBar').value.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
       const resultsList = document.getElementById('resultsList');
       resultsList.className = isAdmin ? 'edit-mode' : '';
 
-      if (items.length === 0) { resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: #666;">No items found...</div>`; return; }
+      if (items.length === 0) {
+        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: #666;">No catalog items found...</div>`;
+        return;
+      }
 
-      let htmlBuffer = [];
+      let html = [];
       for (const item of items) {
         if (currentCategory !== 'All' && currentCategory !== item.category) continue;
-        const searchTarget = (item.name + ' ' + (item._marathiName || '')).toLowerCase();
+        const searchTarget = (item.name + ' ' + (item._marathiName || '') + ' ' + item.category).toLowerCase();
         if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
 
         const displayName = currentLang === 'mr' ? item._marathiName : item.name;
         const categoryLabel = currentLang === 'mr' ? (categoryMarathiCache[item.category] || item.category) : item.category;
         const priceDisplay = (item.price === '' || item.price === null || isNaN(item.price)) ? '—' : `₹${item.price}`;
-        let safeKey = ""; try { safeKey = btoa(unescape(encodeURIComponent(item.key))); } catch(e) { safeKey = encodeURIComponent(item.key); }
-        
-        const safePhotoUrl = item.photo ? item.photo.replace(/'/g, "\\'") : '';
-        const thumbHtml = item.photo ? `<img class="item-thumb" src="${item.photo}" alt="" loading="lazy" onclick="openImageModal('${safePhotoUrl}')" onerror="this.style.display='none'">` : '';
+        let safeKey = btoa(unescape(encodeURIComponent(item.key)));
 
-        htmlBuffer.push(`
+        let thumbContent = item.photo 
+          ? `<img class="item-thumb" src="${item.photo}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'item-thumb-placeholder\\'>📷</span>';">`
+          : `<span class="item-thumb-placeholder">📷</span>`;
+
+        html.push(`
           <div class="item-card">
-            ${thumbHtml}
+            <div class="item-thumb-container" onclick="openImageModal('${item.photo || ''}')" title="Click to enlarge">
+              ${thumbContent}
+            </div>
             <div class="item-wrapper">
               <div class="top-row">
                 <div class="item-info">
@@ -417,14 +317,14 @@
                 <div class="item-price">${priceDisplay}</div>
               </div>
               <div class="admin-actions">
-                <button class="action-btn btn-edit" onclick="openEditModal('${safeKey}')">✏️ Edit Details</button>
+                <button class="action-btn btn-edit" onclick="openEditModal('${safeKey}')">✏️ Edit</button>
                 <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
               </div>
             </div>
           </div>
         `);
       }
-      resultsList.innerHTML = htmlBuffer.join('');
+      resultsList.innerHTML = html.join('');
     }
 
     function setCategory(cat) { currentCategory = cat; buildCategories(); displayItems(); }
@@ -432,17 +332,14 @@
     function toggleLanguage() {
       currentLang = currentLang === 'en' ? 'mr' : 'en';
       localStorage.setItem('raj_traders_lang', currentLang);
-      updateLangUI(); buildCategories(); displayItems();
-    }
-
-    function updateLangUI() {
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
-      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 साहित्य शोधा...' : '🔍 Search items...';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
+      buildCategories(); displayItems();
     }
 
     function toggleAdmin() {
       if (!isAdmin) {
-        if (prompt("Enter Admin PIN:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; displayItems(); }
+        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; displayItems(); }
         else alert("Incorrect PIN");
       } else {
         isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; displayItems();
@@ -454,6 +351,53 @@
       document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
     }
 
+    function openImageModal(url) {
+      if (!url || url === 'undefined') { return; }
+      document.getElementById('enlargedImg').src = url;
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').style.display = 'none';
+      document.getElementById('enlargedImg').src = "";
+    }
+
+    function openEditModal(safeKey) {
+      let key = decodeURIComponent(escape(atob(safeKey)));
+      const item = itemsByKey[key];
+      if (!item) return;
+      document.getElementById('editItemKey').value = key;
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editPrice').value = item.price;
+      document.getElementById('editPhoto').value = item.photo || '';
+      document.getElementById('editMarathi').value = item.marathi || '';
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+    async function saveEdit() {
+      const key = document.getElementById('editItemKey').value;
+      const item = itemsByKey[key];
+      const btn = document.getElementById('saveEditBtn');
+      btn.innerText = "Saving..."; btn.disabled = true;
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({
+            action: 'upsert', category: item.category, name: item.name,
+            price: document.getElementById('editPrice').value.trim(),
+            photo: document.getElementById('editPhoto').value.trim(),
+            marathi: document.getElementById('editMarathi').value.trim()
+          })
+        });
+        closeEditModal();
+        await backgroundSync();
+      } catch (err) { alert("Error updating item."); } 
+      finally { btn.innerText = "Save Changes"; btn.disabled = false; }
+    }
+
     async function saveNewItem() {
       const select = document.getElementById('adminCategorySelect');
       let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
@@ -462,80 +406,38 @@
       const photo = document.getElementById('newPhoto').value.trim();
 
       if (!name || !price) { alert("Please enter item name and price"); return; }
-
-      const saveBtn = document.getElementById('saveNewBtn');
-      saveBtn.innerText = "Saving..."; saveBtn.disabled = true;
-
-      try {
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price, photo: photo }) });
-        document.getElementById('itemName').value = ''; document.getElementById('itemPrice').value = ''; document.getElementById('newPhoto').value = ''; document.getElementById('newCategoryInput').value = '';
-        await backgroundSync(); alert("Saved successfully!");
-      } catch (err) { alert("Network error while saving."); } 
-      finally { saveBtn.innerText = "Save to Shop"; saveBtn.disabled = false; }
-    }
-
-    async function deleteItem(safeKey) {
-      let key = safeKey; try { key = decodeURIComponent(escape(atob(safeKey))); } catch(e) { key = decodeURIComponent(safeKey); }
-      if (!confirm(`Are you sure you want to delete "${key}"?`)) return;
-      try { await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', key: key }) }); await backgroundSync(); } 
-      catch (err) { alert("Error deleting item."); }
-    }
-
-    function openEditModal(safeKey) {
-      let key = safeKey; try { key = decodeURIComponent(escape(atob(safeKey))); } catch(e) { key = decodeURIComponent(safeKey); }
-      const item = itemsByKey[key];
-      if (!item) return;
-
-      document.getElementById('editItemKey').value = key;
-      document.getElementById('editName').value = item.name;
-      document.getElementById('editPrice').value = item.price;
-      document.getElementById('editPhoto').value = item.photo || '';
-      document.getElementById('editMarathi').value = item.marathi || '';
-      
-      document.getElementById('editModal').style.display = 'flex';
-    }
-
-    function closeEditModal() {
-      document.getElementById('editModal').style.display = 'none';
-    }
-
-    function openImageModal(url) {
-      if (!url) return;
-      document.getElementById('enlargedImg').src = url;
-      document.getElementById('imageModal').style.display = 'flex';
-    }
-
-    function closeImageModal() {
-      document.getElementById('imageModal').style.display = 'none';
-    }
-
-    async function saveEdit() {
-      const key = document.getElementById('editItemKey').value;
-      const item = itemsByKey[key];
-      if (!item) return;
-
-      const newPrice = document.getElementById('editPrice').value.trim();
-      const newPhoto = document.getElementById('editPhoto').value.trim();
-      const newMarathi = document.getElementById('editMarathi').value.trim();
-
-      const btn = document.getElementById('saveEditBtn');
+      const btn = document.getElementById('saveNewBtn');
       btn.innerText = "Saving..."; btn.disabled = true;
 
       try {
         await fetch(API_URL, {
           method: 'POST',
-          body: JSON.stringify({ action: 'upsert', category: item.category, name: item.name, price: newPrice, photo: newPhoto, marathi: newMarathi })
+          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price, photo: photo })
         });
-        closeEditModal();
+        document.getElementById('itemName').value = '';
+        document.getElementById('itemPrice').value = '';
+        document.getElementById('newPhoto').value = '';
+        document.getElementById('newCategoryInput').value = '';
         await backgroundSync();
-      } catch (err) {
-        alert("Error updating item.");
-      } finally {
-        btn.innerText = "Save Changes"; btn.disabled = false;
-      }
+      } catch (err) { alert("Error saving item."); } 
+      finally { btn.innerText = "Save to Catalog"; btn.disabled = false; }
     }
 
-    window.onload = init;
+    async function deleteItem(safeKey) {
+      let key = decodeURIComponent(escape(atob(safeKey)));
+      if (!confirm(`Delete "${key}" from catalog?`)) return;
+      try {
+        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', key: key }) });
+        await backgroundSync();
+      } catch (err) { alert("Error deleting item."); }
+    }
+
+    window.onload = () => {
+      // Load UI language states
+      document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
+      backgroundSync();
+    };
   </script>
 </body>
 </html>
