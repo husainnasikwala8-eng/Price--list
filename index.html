@@ -46,7 +46,6 @@
     .admin-input, .admin-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
     .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
     
-    /* Modal (Popup) for Editing */
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
     .modal-content { background: var(--card-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;}
@@ -101,10 +100,10 @@
       <label>Price (₹)</label>
       <input type="number" id="editPrice" class="admin-input">
       
-      <label>Photo Link (Google Drive / Web URL)</label>
+      <label>Photo Link</label>
       <input type="text" id="editPhoto" class="admin-input" placeholder="Paste image link here">
       
-      <label>Custom Marathi Name (Optional)</label>
+      <label>Custom Marathi Name (Optional Override)</label>
       <input type="text" id="editMarathi" class="admin-input" placeholder="e.g. पितळी टॅप">
       
       <div style="display:flex; gap:10px; margin-top:15px;">
@@ -129,17 +128,48 @@
     let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
 
     const MARATHI_DICT = {
-      "plumbing":"प्लंबिंग","paints":"पेंट","paint":"पेंट","fasteners":"फास्टनर्स",
-      "hardware":"हार्डवेअर","brass":"ब्रास","iron":"लोखंड","steel":"स्टील",
-      "tap":"टॅप","bibcock":"बिबकॉक","valve":"व्हॉल्व्ह","pipe":"पाईप","hose":"होज",
-      "clip":"क्लिप","joint":"जॉइंट","wrench":"पाना","brush":"ब्रश","roller":"रोलर",
-      "thinner":"थिनर","tie":"टाय","light":"लाईट","heavy":"हेवी","hammer":"हातोडी",
-      "bolt":"बोल्ट","nut":"नट","screw":"स्क्रू","nail":"खिळा","wire":"वायर",
-      "mesh":"जाळी","hinge":"बिजागरी","lock":"कुलूप","handle":"हँडल",
-      "white":"पांढरा","black":"काळा","red":"लाल","blue":"निळा","yellow":"पिवळा"
+      "plumbing": "प्लंबिंग",
+      "paints": "पेंट",
+      "paint": "पेंट",
+      "fasteners": "फास्टनर्स",
+      "hardware": "हार्डवेअर",
+      "construction": "बांधकाम",
+      "brass": "ब्रास",
+      "iron": "लोखंड",
+      "steel": "स्टील",
+      "tap": "टॅप",
+      "bibcock": "बिबकॉक",
+      "valve": "व्हॉल्व्ह",
+      "ball valve": "बॉल व्हॉल्व्ह",
+      "ball": "बॉल",
+      "pipe": "पाईप",
+      "hose": "होज",
+      "clip": "क्लिप",
+      "joint": "जॉइंट",
+      "wrench": "पाना",
+      "brush": "ब्रश",
+      "roller": "रोलर",
+      "thinner": "थिनर",
+      "tie": "टाय",
+      "light": "लाईट",
+      "heavy": "हेवी",
+      "hammer": "हातोडी",
+      "bolt": "बोल्ट",
+      "nut": "नट",
+      "screw": "स्क्रू",
+      "nail": "खिळा",
+      "wire": "वायर",
+      "mesh": "जाळी",
+      "hinge": "बिजागरी",
+      "lock": "कुलूप",
+      "handle": "हँडल",
+      "white": "पांढरा",
+      "black": "काळा",
+      "red": "लाल",
+      "blue": "निळा",
+      "yellow": "पिवळा"
     };
-
-    function showError(msg) {
+        function showError(msg) {
       const errBox = document.getElementById('errorBox');
       errBox.style.display = 'block';
       errBox.innerText = "Error: " + msg;
@@ -151,6 +181,8 @@
 
     function transliterateWord(rawWord) {
       const w = rawWord.toLowerCase();
+      if (MARATHI_DICT[w]) return MARATHI_DICT[w];
+
       const consonants = [
         ['kh','ख'],['gh','घ'],['chh','छ'],['ch','च'],['jh','झ'],
         ['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],
@@ -206,6 +238,9 @@
 
     function transliterateName(text) {
       if (!text) return "";
+      const lowerFull = text.toLowerCase().trim();
+      if (MARATHI_DICT[lowerFull]) return MARATHI_DICT[lowerFull];
+
       return text.split(/\s+/).map(tok => {
         if (isPureSizeToken(tok)) return tok;
         
@@ -434,7 +469,6 @@
       catch (err) { alert("Error deleting item."); }
     }
 
-    /* --- NEW MODAL EDIT SYSTEM --- */
     function openEditModal(safeKey) {
       let key = safeKey; try { key = decodeURIComponent(escape(atob(safeKey))); } catch(e) { key = decodeURIComponent(safeKey); }
       const item = itemsByKey[key];
@@ -483,6 +517,3 @@
   </script>
 </body>
 </html>
-
-            </div>
-      
