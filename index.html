@@ -11,13 +11,13 @@
   <meta name="theme-color" content="#1a5fb4">
   <style>
     :root { --primary: #1a5fb4; --bg: #f4f4f9; --card-bg: #ffffff; --text: #222222; --subtext: #666666; --success: #28a745; --border: #e0e0e0; --danger: #dc3545; }
-    body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 500px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
+    body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 600px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
     
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .header h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     .header-logo { width: 28px; height: 28px; border-radius: 6px; }
-    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); cursor: pointer; }
-
+    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); cursor: pointer; transition: 0.2s; }
+    
     .lang-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
     .lang-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); border-radius: 20px; padding: 6px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
 
@@ -30,7 +30,6 @@
     
     .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; }
     
-    /* Catalog Photo Thumbnails */
     .item-thumb-container { width: 60px; height: 60px; flex-shrink: 0; background: #eef2f5; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
     .item-thumb-container:active { transform: scale(0.95); }
     .item-thumb { width: 100%; height: 100%; object-fit: cover; }
@@ -51,14 +50,14 @@
     
     .admin-panel { display: none; background: var(--card-bg); padding: 20px; margin-top: 30px; border-radius: 12px; border-top: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .admin-input, .admin-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-    .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; }
+    .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
+    .admin-save-btn:disabled { opacity: 0.7; }
     
     .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
     .modal-content { background: var(--card-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
     .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;}
     .modal-content label { font-size: 12px; font-weight: bold; color: var(--subtext); margin-bottom: 4px; display: block; }
 
-    /* Enlarged Photo Modal */
     .img-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
     .img-modal-content { max-width: 95vw; max-height: 85vh; border-radius: 12px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .img-modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
@@ -118,14 +117,13 @@
 
   <div id="imageModal" class="img-modal" onclick="closeImageModal()">
     <button class="img-modal-close" onclick="closeImageModal()">&times;</button>
-    <img id="enlargedImg" class="img-modal-content" src="" alt="Enlarged Photo">
+    <img id="enlargedImg" class="img-modal-content" src="" alt="Enlarged Photo" onclick="event.stopPropagation()">
   </div>
 
   <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
-
-  <script>
+    <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
-    const ADMIN_PIN = "2241";
+    const ADMIN_PIN = "2241"; 
 
     let items = [];
     let itemsByKey = {};
@@ -134,6 +132,11 @@
     let uniqueCategories = new Set();
     let isAdmin = false;
     let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
+
+    function sanitizeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/[&<>'"]/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[match] || match));
+    }
 
     const MARATHI_DICT = {
       "plumbing": "प्लंबिंग", "paints": "पेंट", "paint": "पेंट", "fasteners": "फास्टनर्स", "hardware": "हार्डवेअर", 
@@ -234,7 +237,8 @@
         photo: fixImageLink(getVal(['photo', 'image', 'link', 'url', 'pic']))
       };
     }
-      function computeMarathiFields() {
+
+    function computeMarathiFields() {
       const catCache = {};
       items.forEach(item => {
         item._marathiName = item.marathi ? ensureSizePreserved(item.marathi, item.name) : transliterateName(item.name);
@@ -248,7 +252,8 @@
       if (status) status.innerText = "🔄 Syncing...";
       try {
         const response = await fetch(API_URL);
-        const rawData = await response.json();
+        const text = await response.text();
+        const rawData = JSON.parse(text); 
         items = rawData.map(normalizeRawItem).filter(Boolean);
         itemsByKey = {};
         items.forEach(it => { itemsByKey[it.key] = it; });
@@ -257,7 +262,7 @@
         displayItems();
         if (status) status.innerText = "🟢 Live";
       } catch (error) {
-        if (status) status.innerText = "🟡 Error Loading";
+        if (status) status.innerText = "🟡 Local Only";
       }
     }
 
@@ -268,12 +273,12 @@
       let catHtml = [];
       uniqueCategories.forEach(cat => {
         let label = cat === 'All' ? (currentLang === 'mr' ? 'सर्व' : 'All') : (currentLang === 'mr' ? (categoryMarathiCache[cat] || cat) : cat);
-        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${cat}')">${label}</button>`);
+        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${sanitizeHTML(cat)}')">${sanitizeHTML(label)}</button>`);
       });
       document.getElementById('categoryBar').innerHTML = catHtml.join('');
       
       let adminHtml = [];
-      uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${cat}">${cat}</option>`); });
+      uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${sanitizeHTML(cat)}">${sanitizeHTML(cat)}</option>`); });
       adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
       document.getElementById('adminCategorySelect').innerHTML = adminHtml.join('');
     }
@@ -296,29 +301,32 @@
 
         const displayName = currentLang === 'mr' ? item._marathiName : item.name;
         const categoryLabel = currentLang === 'mr' ? (categoryMarathiCache[item.category] || item.category) : item.category;
-        const priceDisplay = (item.price === '' || item.price === null || isNaN(item.price)) ? '—' : `₹${item.price}`;
-        let safeKey = btoa(unescape(encodeURIComponent(item.key)));
+        
+        const priceNum = parseFloat(item.price);
+        const priceDisplay = isNaN(priceNum) ? '—' : `₹${priceNum}`;
+        const safeKey = sanitizeHTML(item.key);
+        const safePhoto = sanitizeHTML(item.photo);
 
         let thumbContent = item.photo 
-          ? `<img class="item-thumb" src="${item.photo}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'item-thumb-placeholder\\'>📷</span>';">`
+          ? `<img class="item-thumb" src="${safePhoto}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'item-thumb-placeholder\\'>📷</span>';">`
           : `<span class="item-thumb-placeholder">📷</span>`;
 
         html.push(`
           <div class="item-card">
-            <div class="item-thumb-container" onclick="openImageModal('${item.photo || ''}')" title="Click to enlarge">
+            <div class="item-thumb-container" onclick="openImageModal('${safePhoto}')" title="Click to enlarge">
               ${thumbContent}
             </div>
             <div class="item-wrapper">
               <div class="top-row">
                 <div class="item-info">
-                  <span class="item-name">${displayName}</span>
-                  <span class="item-cat">${categoryLabel}</span>
+                  <span class="item-name">${sanitizeHTML(displayName)}</span>
+                  <span class="item-cat">${sanitizeHTML(categoryLabel)}</span>
                 </div>
                 <div class="item-price">${priceDisplay}</div>
               </div>
               <div class="admin-actions">
-                <button class="action-btn btn-edit" onclick="openEditModal('${safeKey}')">✏️ Edit</button>
-                <button class="action-btn btn-del" onclick="deleteItem('${safeKey}')">❌ Delete</button>
+                <button class="action-btn btn-edit" data-key="${safeKey}" onclick="openEditModal(this.getAttribute('data-key'))">✏️ Edit</button>
+                <button class="action-btn btn-del" data-key="${safeKey}" onclick="deleteItem(this.getAttribute('data-key'))">❌ Delete</button>
               </div>
             </div>
           </div>
@@ -327,7 +335,11 @@
       resultsList.innerHTML = html.join('');
     }
 
-    function setCategory(cat) { currentCategory = cat; buildCategories(); displayItems(); }
+    function setCategory(cat) { 
+      currentCategory = cat; 
+      buildCategories(); 
+      displayItems(); 
+    }
 
     function toggleLanguage() {
       currentLang = currentLang === 'en' ? 'mr' : 'en';
@@ -352,7 +364,7 @@
     }
 
     function openImageModal(url) {
-      if (!url || url === 'undefined') { return; }
+      if (!url || url === 'undefined') return;
       document.getElementById('enlargedImg').src = url;
       document.getElementById('imageModal').style.display = 'flex';
     }
@@ -362,8 +374,7 @@
       document.getElementById('enlargedImg').src = "";
     }
 
-    function openEditModal(safeKey) {
-      let key = decodeURIComponent(escape(atob(safeKey)));
+    function openEditModal(key) {
       const item = itemsByKey[key];
       if (!item) return;
       document.getElementById('editItemKey').value = key;
@@ -372,68 +383,103 @@
       document.getElementById('editPhoto').value = item.photo || '';
       document.getElementById('editMarathi').value = item.marathi || '';
       document.getElementById('editModal').style.display = 'flex';
+      document.getElementById('saveEditBtn').innerText = "Save Changes";
     }
 
-    function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+    function closeEditModal() { 
+      document.getElementById('editModal').style.display = 'none'; 
+    }
 
-    async function saveEdit() {
+    function saveEdit() {
       const key = document.getElementById('editItemKey').value;
       const item = itemsByKey[key];
       const btn = document.getElementById('saveEditBtn');
-      btn.innerText = "Saving..."; btn.disabled = true;
+      
+      const newPrice = document.getElementById('editPrice').value.trim();
+      const newPhoto = fixImageLink(document.getElementById('editPhoto').value.trim());
+      const newMarathi = document.getElementById('editMarathi').value.trim();
+
+      btn.innerText = "Saved!"; 
+      
+      item.price = newPrice;
+      item.photo = newPhoto;
+      item.marathi = newMarathi;
+      computeMarathiFields();
+      displayItems();
+      
+      setTimeout(() => closeEditModal(), 600);
 
       try {
-        await fetch(API_URL, {
+        fetch(API_URL, {
           method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
           body: JSON.stringify({
             action: 'upsert', category: item.category, name: item.name,
-            price: document.getElementById('editPrice').value.trim(),
-            photo: document.getElementById('editPhoto').value.trim(),
-            marathi: document.getElementById('editMarathi').value.trim()
+            price: newPrice, photo: newPhoto, marathi: newMarathi
           })
         });
-        closeEditModal();
-        await backgroundSync();
-      } catch (err) { alert("Error updating item."); } 
-      finally { btn.innerText = "Save Changes"; btn.disabled = false; }
+      } catch (err) { console.error(err); }
     }
 
-    async function saveNewItem() {
+    function saveNewItem() {
       const select = document.getElementById('adminCategorySelect');
       let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
       const name = document.getElementById('itemName').value.trim();
       const price = document.getElementById('itemPrice').value.trim();
-      const photo = document.getElementById('newPhoto').value.trim();
+      const photo = fixImageLink(document.getElementById('newPhoto').value.trim());
 
       if (!name || !price) { alert("Please enter item name and price"); return; }
+      
       const btn = document.getElementById('saveNewBtn');
-      btn.innerText = "Saving..."; btn.disabled = true;
+      btn.innerText = "Saved!";
+      
+      const newItem = { key: name, category: cat, name: name, price: price, photo: photo, marathi: '' };
+      items.push(newItem);
+      itemsByKey[name] = newItem;
+      uniqueCategories.add(cat);
+      computeMarathiFields();
+      buildCategories();
+      displayItems();
 
-      try {
-        await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price, photo: photo })
-        });
+      setTimeout(() => {
+        btn.innerText = "Save to Catalog";
         document.getElementById('itemName').value = '';
         document.getElementById('itemPrice').value = '';
         document.getElementById('newPhoto').value = '';
         document.getElementById('newCategoryInput').value = '';
-        await backgroundSync();
-      } catch (err) { alert("Error saving item."); } 
-      finally { btn.innerText = "Save to Catalog"; btn.disabled = false; }
+        if(select.value === '__NEW__') select.value = cat;
+      }, 1000);
+
+      try {
+        fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price, photo: photo })
+        });
+      } catch (err) { console.error(err); }
     }
 
-    async function deleteItem(safeKey) {
-      let key = decodeURIComponent(escape(atob(safeKey)));
+    function deleteItem(key) {
       if (!confirm(`Delete "${key}" from catalog?`)) return;
+      
+      items = items.filter(i => i.key !== key);
+      delete itemsByKey[key];
+      buildCategories();
+      displayItems();
+
       try {
-        await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', key: key }) });
-        await backgroundSync();
-      } catch (err) { alert("Error deleting item."); }
+        fetch(API_URL, { 
+          method: 'POST', 
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'delete', key: key }) 
+        });
+      } catch (err) { console.error(err); }
     }
 
     window.onload = () => {
-      // Load UI language states
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
       document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
       backgroundSync();
