@@ -211,17 +211,32 @@
         return '';
       };
 
-      let name = getVal(['item name', 'name', 'item', 'product', 'title']) || raw[keys[0]];
-      if (!name) return null;
+      let rawNameField = (getVal(['item name', 'name', 'item', 'product', 'title']) || raw[keys[0]]);
+      if (!rawNameField) return null;
+      rawNameField = rawNameField.toString().trim();
 
-      let category = getVal(['cat', 'group', 'section', 'category']) || 'General';
+      let category = getVal(['cat', 'group', 'section', 'category']).toString().trim();
+      let name = rawNameField;
+
+      // Fallback: sheet has category and name merged into one field, e.g. "Plumbing/Ball Valve 1/2\""
+      // Only splits when the part before the delimiter is letters-only, so fraction sizes like 1/2 or 3/4 are never touched.
+      if (!category) {
+        const splitMatch = rawNameField.match(/^([A-Za-z][A-Za-z\s]{0,30})[\/:]\s*(.+)$/);
+        if (splitMatch) {
+          category = splitMatch[1].trim();
+          name = splitMatch[2].trim();
+        }
+      }
+      if (!category) category = 'General';
+      category = category.charAt(0).toUpperCase() + category.slice(1);
+
       let price = getVal(['price', 'rate', 'cost', 'amount']);
       let marathi = getVal(['marathi', 'mr', 'translation']);
       let photo = getVal(['photo', 'image', 'img', 'picture', 'link', 'url']);
 
       return {
         key: name.toString().trim(),
-        category: category.toString().trim(),
+        category: category,
         name: name.toString().trim(),
         price: price.toString().trim(),
         marathi: marathi.toString().trim(),
