@@ -115,7 +115,7 @@
       </div>
     </div>
   </div>
-    <script>
+   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
     const ADMIN_PIN = "2241"; 
 
@@ -216,7 +216,7 @@
       rawNameField = rawNameField.toString().trim();
 
       let category = getVal(['cat', 'group', 'section', 'category']).toString().trim();
-      let name = rawNameField;
+      let displayName = rawNameField;
 
       // Fallback: sheet has category and name merged into one field, e.g. "Plumbing/Ball Valve 1/2\""
       // Only splits when the part before the delimiter is letters-only, so fraction sizes like 1/2 or 3/4 are never touched.
@@ -224,7 +224,7 @@
         const splitMatch = rawNameField.match(/^([A-Za-z][A-Za-z\s]{0,30})[\/:]\s*(.+)$/);
         if (splitMatch) {
           category = splitMatch[1].trim();
-          name = splitMatch[2].trim();
+          displayName = splitMatch[2].trim();
         }
       }
       if (!category) category = 'General';
@@ -235,9 +235,9 @@
       let photo = getVal(['photo', 'image', 'img', 'picture', 'link', 'url']);
 
       return {
-        key: name.toString().trim(),
+        key: rawNameField,
         category: category,
-        name: name.toString().trim(),
+        name: displayName,
         price: price.toString().trim(),
         marathi: marathi.toString().trim(),
         photo: fixImageLink(photo)
@@ -387,7 +387,7 @@
       const btn = document.getElementById('saveEditBtn');
       btn.innerText = "Saving...";
 
-      if (newName.toLowerCase() !== oldKey.toLowerCase()) {
+      if (newName.toLowerCase() !== oldItem.name.toLowerCase()) {
         items = items.filter(i => i.key.toLowerCase() !== oldKey.toLowerCase());
         delete itemsByKey[oldKey.toLowerCase()];
         
@@ -407,7 +407,7 @@
         
         fetch(API_URL, {
           method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: newName, price: newPrice })
+          body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: oldItem.key, price: newPrice })
         });
       }
     }
