@@ -4,82 +4,197 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Raj Traders Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #1976d2;
-      --bg: #f4f6f8;
-      --card-bg: #ffffff;
-      --text: #333;
-      --border: #e0e0e0;
+      --bg: #EDF0EF;
+      --surface: #FFFFFF;
+      --ink: #22282C;
+      --ink-soft: #5C6569;
+      --steel: #37454D;
+      --accent: #E8590C;
+      --accent-soft: #FCE7DA;
+      --price: #3F6B3F;
+      --border: #DBDFDC;
+      --danger: #B23A2E;
+      --danger-soft: #F7E2DF;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
-    
-    .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .header h1 { font-size: 1.2rem; }
-    .btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; }
-    
-    .search-container { padding: 10px 15px; background: white; border-bottom: 1px solid var(--border); }
-    .search-container input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; }
-    
-    .category-scroll { display: flex; overflow-x: auto; padding: 10px 15px; background: white; white-space: nowrap; border-bottom: 1px solid var(--border); scrollbar-width: none; }
-    .category-scroll::-webkit-scrollbar { display: none; }
-    .cat-btn { background: #f0f0f0; border: none; padding: 6px 15px; margin-right: 10px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; }
-    .cat-btn.active { background: var(--primary); color: white; }
-    
-    .item-list { padding: 15px; }
-    .item-card { background: var(--card-bg); border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; }
-    
-    .item-thumb-container { width: 60px; height: 60px; flex-shrink: 0; border-radius: 5px; overflow: hidden; background: #e9ecef; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
-    .item-thumb { width: 100%; height: 100%; object-fit: cover; }
-    .item-thumb-placeholder { font-size: 24px; color: #adb5bd; }
-    
-    .item-wrapper { flex-grow: 1; }
-    .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
-    .item-info { display: flex; flex-direction: column; gap: 4px; }
-    .item-name { font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
-    .item-cat { font-size: 0.8rem; color: #666; background: #eee; padding: 2px 6px; border-radius: 4px; align-self: flex-start; }
-    .item-price { font-weight: bold; color: #2e7d32; font-size: 1.1rem; }
-    
-    .admin-panel { display: none; background: #fff3e0; padding: 15px; margin: 15px; border-radius: 8px; border: 1px solid #ffe0b2; }
-    .admin-panel h3 { margin-bottom: 10px; font-size: 1rem; color: #e65100; }
-    .input-group { margin-bottom: 10px; }
-    .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
-    .btn-save { width: 100%; background: #4caf50; color: white; border: none; padding: 12px; border-radius: 5px; font-size: 1rem; font-weight: bold; }
-    
-    .admin-actions { display: none; margin-top: 10px; gap: 10px; border-top: 1px dashed #ccc; padding-top: 10px; }
-    .edit-mode .admin-actions { display: flex; }
-    .action-btn { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
-    .btn-edit { background: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
-    .btn-del { background: #ffcdd2; color: #c62828; border: 1px solid #e53935; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding-bottom: 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
 
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
-    .modal-content h3 { margin-bottom: 15px; }
+    .header {
+      background: var(--steel);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--accent);
+    }
+    .header h1 {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 1.2rem;
+      letter-spacing: 0.3px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .lang-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .search-container { padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .search-box { position: relative; }
+    .search-box svg {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--ink-soft); pointer-events: none;
+    }
+    .search-box input {
+      width: 100%; padding: 11px 12px 11px 38px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 1rem; background: var(--bg); color: var(--ink);
+    }
+
+    .category-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); scrollbar-width: none; }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .cat-btn.active {
+      color: var(--ink);
+      border-color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600;
+      background: var(--accent-soft);
+    }
+
+    .item-list { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .item-card {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cat-color, var(--steel));
+      display: flex; gap: 12px; align-items: center;
+    }
+
+    .item-thumb-container { width: 56px; height: 56px; flex-shrink: 0; border-radius: 5px; overflow: hidden; background: var(--bg); display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
+    .item-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .item-thumb-placeholder { width: 22px; height: 22px; color: #b7bcb9; }
+
+    .item-wrapper { flex-grow: 1; min-width: 0; }
+    .top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .item-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .item-name { font-weight: 600; font-size: 1rem; line-height: 1.25; }
+    .item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .item-cat { font-size: 0.75rem; color: var(--ink-soft); background: var(--bg); padding: 2px 7px; border-radius: 4px; }
+    .dup-tag { font-size: 0.72rem; color: var(--danger); background: var(--danger-soft); padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .dup-tag svg { width: 11px; height: 11px; }
+    .item-price {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      color: var(--price);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 1.05rem;
+      white-space: nowrap;
+    }
+
+    .admin-panel { display: none; background: var(--surface); padding: 16px; margin: 14px; border-radius: 8px; border: 1px solid var(--border); border-top: 3px solid var(--accent); }
+    .admin-panel h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 1rem; color: var(--steel); font-family: 'Oswald', sans-serif; font-weight: 500; }
+    .admin-panel h3 svg { width: 18px; height: 18px; }
+    .input-group { margin-bottom: 10px; }
+    .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background: var(--bg); }
+    .btn-save { width: 100%; background: var(--steel); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+
+    .dup-toggle { width: 100%; background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom: 16px; }
+    .dup-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+    .admin-actions { display: none; margin-top: 10px; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
+    .edit-mode .admin-actions { display: flex; }
+    .action-btn { flex: 1; padding: 8px; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.85rem; border: 1px solid; }
+    .action-btn svg { width: 14px; height: 14px; }
+    .btn-edit { background: #FDF3E3; color: #92660D; border-color: #E9C878; }
+    .btn-del { background: var(--danger-soft); color: var(--danger); border-color: #E3A99E; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(20,24,26,0.55); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; border-top: 3px solid var(--accent); }
+    .modal-content h3 { margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-weight: 500; color: var(--steel); }
+    .modal-content label { font-size: 0.8rem; color: var(--ink-soft); }
     .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-    .btn-cancel { flex: 1; background: #ccc; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
-    .btn-confirm { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
+    .btn-cancel { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-confirm { flex: 1; background: var(--steel); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <div class="header">
     <h1>Raj Traders Catalog</h1>
-    <div>
-      <span id="syncStatus" style="font-size:0.8rem; margin-right:10px;">⚪ Loading...</span>
-      <button class="btn" onclick="toggleLanguage()" id="langToggle">मराठी</button>
-      <button class="btn" onclick="toggleAdmin()">⚙️</button>
+    <div class="header-actions">
+      <span id="syncStatus" style="font-size:0.78rem; margin-right:2px;">⚪</span>
+      <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">मराठी</button>
+      <button class="icon-btn" onclick="toggleAdmin()" aria-label="Admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
 
   <div class="search-container">
-    <input type="text" id="searchBar" placeholder="🔍 Search catalog..." onkeyup="displayItems()">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchBar" placeholder="Search catalog..." onkeyup="displayItems()">
+    </div>
   </div>
 
   <div class="category-scroll" id="categoryBar"></div>
 
   <div class="admin-panel" id="adminPanel">
-    <h3>🛠️ Add New Item</h3>
+    <button class="dup-toggle" id="dupToggleBtn" onclick="toggleDuplicatesView()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>
+      <span id="dupToggleLabel">Checking for duplicates…</span>
+    </button>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L2 19l3 3 7.1-7.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+      Add New Item
+    </h3>
     <div class="input-group">
       <select id="adminCategorySelect" onchange="handleAdminCategoryChange()"></select>
     </div>
@@ -102,11 +217,11 @@
       <h3>Edit Item</h3>
       <input type="hidden" id="editOldKey">
       <div class="input-group">
-        <label style="font-size:0.8rem; color:#666;">Item Name</label>
+        <label>Item Name</label>
         <input type="text" id="editName">
       </div>
       <div class="input-group">
-        <label style="font-size:0.8rem; color:#666;">Price (₹)</label>
+        <label>Price (₹)</label>
         <input type="number" id="editPrice">
       </div>
       <div class="modal-actions">
@@ -115,9 +230,26 @@
       </div>
     </div>
   </div>
-   <script>
+  <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
     const ADMIN_PIN = "2241"; 
+
+    const ICON_CAMERA = `<svg class="item-thumb-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>`;
+    const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+    const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+    const ICON_WARNING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>`;
+    const CATEGORY_COLORS = ['#E8590C', '#3C4A52', '#4C7A3D', '#8A5A2B', '#5B7C99', '#946846'];
+
+    function categoryColor(cat) {
+      let hash = 0;
+      for (let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) >>> 0;
+      return CATEGORY_COLORS[hash % CATEGORY_COLORS.length];
+    }
+
+    function handleImgError(imgEl) {
+      imgEl.onerror = null;
+      imgEl.parentElement.innerHTML = ICON_CAMERA;
+    }
 
     let items = [];
     let itemsByKey = {};
@@ -125,6 +257,7 @@
     let uniqueCategories = new Set();
     let isAdmin = false;
     let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
+    let showDuplicatesOnly = false;
 
     function sanitizeHTML(str) {
       if (str === null || str === undefined) return '';
@@ -218,8 +351,6 @@
       let category = getVal(['cat', 'group', 'section', 'category']).toString().trim();
       let displayName = rawNameField;
 
-      // Fallback: sheet has category and name merged into one field, e.g. "Plumbing/Ball Valve 1/2\""
-      // Only splits when the part before the delimiter is letters-only, so fraction sizes like 1/2 or 3/4 are never touched.
       if (!category) {
         const splitMatch = rawNameField.match(/^([A-Za-z][A-Za-z\s]{0,30})[\/:]\s*(.+)$/);
         if (splitMatch) {
@@ -244,9 +375,40 @@
       };
     }
 
+    function computeDuplicates() {
+      const counts = {};
+      items.forEach(it => {
+        const comboKey = (it.category + '|' + it.name).toLowerCase();
+        counts[comboKey] = (counts[comboKey] || 0) + 1;
+      });
+      items.forEach(it => {
+        it._isDuplicate = counts[(it.category + '|' + it.name).toLowerCase()] > 1;
+      });
+      updateDupToggleLabel();
+    }
+
+    function updateDupToggleLabel() {
+      const label = document.getElementById('dupToggleLabel');
+      if (!label) return;
+      const dupCount = items.filter(i => i._isDuplicate).length;
+      if (dupCount === 0) {
+        label.innerText = 'No duplicates found';
+      } else if (showDuplicatesOnly) {
+        label.innerText = `Showing ${dupCount} duplicate item(s) — tap to show all`;
+      } else {
+        label.innerText = `${dupCount} duplicate item(s) found — tap to review`;
+      }
+    }
+
+    function toggleDuplicatesView() {
+      showDuplicatesOnly = !showDuplicatesOnly;
+      updateDupToggleLabel();
+      displayItems();
+    }
+
     async function backgroundSync() {
       const status = document.getElementById('syncStatus');
-      if (status) status.innerText = "🔄 Syncing...";
+      if (status) status.innerText = "🔄";
       try {
         const response = await fetch(API_URL);
         const text = await response.text();
@@ -263,11 +425,12 @@
           uniqueCategories.add(it.category);
         });
 
+        computeDuplicates();
         buildCategories();
         displayItems();
-        if (status) status.innerText = "🟢 Live";
+        if (status) status.innerText = "🟢";
       } catch (error) {
-        if (status) status.innerText = "🟡 Local Sync Error";
+        if (status) status.innerText = "🟡";
       }
     }
 
@@ -292,16 +455,19 @@
       resultsList.className = isAdmin ? 'edit-mode' : '';
 
       if (items.length === 0) {
-        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: #666;">No catalog items found...</div>`;
+        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No catalog items found...</div>`;
         return;
       }
 
       let html = [];
+      let shown = 0;
       for (const item of items) {
         if (currentCategory !== 'All' && currentCategory !== item.category) continue;
+        if (showDuplicatesOnly && !item._isDuplicate) continue;
         const searchTarget = (item.name + ' ' + (item._marathiName || '') + ' ' + item.category).toLowerCase();
         if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
 
+        shown++;
         const displayName = currentLang === 'mr' ? item._marathiName : item.name;
         const displayCat = currentLang === 'mr' ? transliterateName(item.category) : item.category;
         const priceNum = parseFloat(item.price);
@@ -309,29 +475,38 @@
         const safeKey = sanitizeHTML(item.key);
         
         let thumbHtml = item.photo 
-          ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'item-thumb-placeholder\\'>📷</div>';">`
-          : `<div class="item-thumb-placeholder">📷</div>`;
+          ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="${sanitizeHTML(item.name)}" loading="lazy" onerror="handleImgError(this)">`
+          : ICON_CAMERA;
+
+        const dupTagHtml = item._isDuplicate ? `<span class="dup-tag">${ICON_WARNING}Duplicate</span>` : '';
 
         html.push(`
-          <div class="item-card">
+          <div class="item-card" style="--cat-color:${categoryColor(item.category)}">
             <div class="item-thumb-container">${thumbHtml}</div>
             <div class="item-wrapper">
               <div class="top-row">
                 <div class="item-info">
                   <span class="item-name">${sanitizeHTML(displayName)}</span>
-                  <span class="item-cat">${sanitizeHTML(displayCat)}</span>
+                  <div class="item-meta">
+                    <span class="item-cat">${sanitizeHTML(displayCat)}</span>
+                    ${dupTagHtml}
+                  </div>
                 </div>
                 <div class="item-price">${priceDisplay}</div>
               </div>
               <div class="admin-actions">
-                <button class="action-btn btn-edit" data-key="${safeKey}" onclick="openEditModal(this.getAttribute('data-key'))">✏️ Edit</button>
-                <button class="action-btn btn-del" data-key="${safeKey}" onclick="deleteItem(this.getAttribute('data-key'))">❌ Delete</button>
+                <button class="action-btn btn-edit" data-key="${safeKey}" onclick="openEditModal(this.getAttribute('data-key'))">${ICON_EDIT}Edit</button>
+                <button class="action-btn btn-del" data-key="${safeKey}" onclick="deleteItem(this.getAttribute('data-key'))">${ICON_DELETE}Delete</button>
               </div>
             </div>
           </div>
         `);
       }
-      resultsList.innerHTML = html.join('');
+      if (shown === 0) {
+        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No items match.</div>`;
+      } else {
+        resultsList.innerHTML = html.join('');
+      }
     }
 
     function setCategory(cat) { 
@@ -344,17 +519,17 @@
       currentLang = currentLang === 'en' ? 'mr' : 'en';
       localStorage.setItem('raj_traders_lang', currentLang);
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
-      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
       buildCategories(); 
       displayItems();
     }
 
     function toggleAdmin() {
       if (!isAdmin) {
-        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; displayItems(); }
+        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; updateDupToggleLabel(); displayItems(); }
         else alert("Incorrect PIN");
       } else {
-        isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; displayItems();
+        isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; showDuplicatesOnly = false; displayItems();
       }
     }
 
@@ -394,6 +569,7 @@
         const newItem = { key: newName, category: oldItem.category, name: newName, price: newPrice, photo: oldItem.photo, marathi: oldItem.marathi, _marathiName: oldItem.marathi || transliterateName(newName) };
         items.push(newItem);
         itemsByKey[newName.toLowerCase()] = newItem;
+        computeDuplicates();
         displayItems();
         closeEditModal();
         
@@ -433,6 +609,7 @@
       }
       
       uniqueCategories.add(cat);
+      computeDuplicates();
       buildCategories();
       displayItems();
 
@@ -454,6 +631,7 @@
       if (!confirm(`Delete "${key}" from catalog?`)) return;
       items = items.filter(i => i.key.toLowerCase() !== key.toLowerCase());
       delete itemsByKey[key.toLowerCase()];
+      computeDuplicates();
       buildCategories();
       displayItems();
 
@@ -465,7 +643,7 @@
 
     window.onload = () => {
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
-      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
       backgroundSync();
     };
   </script>
