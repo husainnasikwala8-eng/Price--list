@@ -4,130 +4,123 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Raj Traders Catalog</title>
-  
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=">
-  
-  <meta name="theme-color" content="#1a5fb4">
   <style>
-    :root { --primary: #1a5fb4; --bg: #f4f4f9; --card-bg: #ffffff; --text: #222222; --subtext: #666666; --success: #28a745; --border: #e0e0e0; --danger: #dc3545; }
-    body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; padding: 15px; max-width: 600px; margin: 0 auto; background-color: var(--bg); color: var(--text); }
+    :root {
+      --primary: #1976d2;
+      --bg: #f4f6f8;
+      --card-bg: #ffffff;
+      --text: #333;
+      --border: #e0e0e0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
     
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .header h2 { margin: 0; font-size: 22px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
-    .header-logo { width: 28px; height: 28px; border-radius: 6px; }
-    .sync-btn { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-weight: 600; color: var(--subtext); cursor: pointer; transition: 0.2s; }
+    .header { background: var(--primary); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .header h1 { font-size: 1.2rem; }
+    .btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9rem; }
     
-    .lang-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
-    .lang-btn { background: var(--card-bg); border: 1px solid var(--primary); color: var(--primary); border-radius: 20px; padding: 6px 16px; font-weight: 700; font-size: 14px; cursor: pointer; }
-
-    .category-bar { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; margin-bottom: 12px; white-space: nowrap; }
-    .category-bar::-webkit-scrollbar { display: none; }
-    .cat-btn { background: #e5e5ea; padding: 8px 16px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer; }
-    .cat-btn.active { background: var(--primary); color: #fff; }
+    .search-container { padding: 10px 15px; background: white; border-bottom: 1px solid var(--border); }
+    .search-container input { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; }
     
-    .search-input { width: 100%; padding: 14px; font-size: 16px; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; margin-bottom: 15px; }
+    .category-scroll { display: flex; overflow-x: auto; padding: 10px 15px; background: white; white-space: nowrap; border-bottom: 1px solid var(--border); scrollbar-width: none; }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-btn { background: #f0f0f0; border: none; padding: 6px 15px; margin-right: 10px; border-radius: 15px; cursor: pointer; font-size: 0.9rem; }
+    .cat-btn.active { background: var(--primary); color: white; }
     
-    .item-card { background: var(--card-bg); padding: 14px 16px; margin-bottom: 8px; border-radius: 10px; border: 1px solid rgba(0,0,0,0.05); display: flex; align-items: center; gap: 12px; }
+    .item-list { padding: 15px; }
+    .item-card { background: var(--card-bg); border-radius: 8px; padding: 12px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border); display: flex; gap: 15px; align-items: center; }
     
-    .item-thumb-container { width: 60px; height: 60px; flex-shrink: 0; background: #eef2f5; border-radius: 8px; border: 1px solid #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s; }
-    .item-thumb-container:active { transform: scale(0.95); }
+    .item-thumb-container { width: 60px; height: 60px; flex-shrink: 0; border-radius: 5px; overflow: hidden; background: #e9ecef; display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
     .item-thumb { width: 100%; height: 100%; object-fit: cover; }
-    .item-thumb-placeholder { font-size: 24px; }
-
-    .item-wrapper { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-    .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; gap: 10px; }
-    .item-info { display: flex; flex-direction: column; flex: 1; }
-    .item-name { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.3; }
-    .item-cat { font-size: 12px; color: var(--subtext); margin-top: 4px; }
-    .item-price { font-size: 18px; font-weight: 700; color: var(--success); white-space: nowrap; }
+    .item-thumb-placeholder { font-size: 24px; color: #adb5bd; }
     
-    .admin-actions { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--border); justify-content: flex-end; gap: 10px; width: 100%; }
+    .item-wrapper { flex-grow: 1; }
+    .top-row { display: flex; justify-content: space-between; align-items: flex-start; }
+    .item-info { display: flex; flex-direction: column; gap: 4px; }
+    .item-name { font-weight: 600; font-size: 1.05rem; line-height: 1.2; }
+    .item-cat { font-size: 0.8rem; color: #666; background: #eee; padding: 2px 6px; border-radius: 4px; align-self: flex-start; }
+    .item-price { font-weight: bold; color: #2e7d32; font-size: 1.1rem; }
+    
+    .admin-panel { display: none; background: #fff3e0; padding: 15px; margin: 15px; border-radius: 8px; border: 1px solid #ffe0b2; }
+    .admin-panel h3 { margin-bottom: 10px; font-size: 1rem; color: #e65100; }
+    .input-group { margin-bottom: 10px; }
+    .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 1rem; }
+    .btn-save { width: 100%; background: #4caf50; color: white; border: none; padding: 12px; border-radius: 5px; font-size: 1rem; font-weight: bold; }
+    
+    .admin-actions { display: none; margin-top: 10px; gap: 10px; border-top: 1px dashed #ccc; padding-top: 10px; }
     .edit-mode .admin-actions { display: flex; }
-    .action-btn { padding: 6px 16px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer; flex: 1; text-align: center;}
-    .btn-edit { background: #e0f0ff; color: var(--primary); }
-    .btn-del { background: #ffe0e0; color: var(--danger); }
-    
-    .admin-panel { display: none; background: var(--card-bg); padding: 20px; margin-top: 30px; border-radius: 12px; border-top: 4px solid var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .admin-input, .admin-select { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
-    .admin-save-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.2s; }
-    .admin-save-btn:disabled { opacity: 0.7; }
-    
-    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 15px; box-sizing: border-box; }
-    .modal-content { background: var(--card-bg); padding: 20px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .modal-content h3 { margin-top: 0; margin-bottom: 15px; color: var(--primary); border-bottom: 1px solid var(--border); padding-bottom: 10px;}
-    .modal-content label { font-size: 12px; font-weight: bold; color: var(--subtext); margin-bottom: 4px; display: block; }
+    .action-btn { flex: 1; padding: 8px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+    .btn-edit { background: #fff9c4; color: #f57f17; border: 1px solid #fbc02d; }
+    .btn-del { background: #ffcdd2; color: #c62828; border: 1px solid #e53935; }
 
-    .img-modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
-    .img-modal-content { max-width: 95vw; max-height: 85vh; border-radius: 12px; object-fit: contain; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    .img-modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 32px; font-weight: bold; cursor: pointer; background: rgba(0,0,0,0.5); width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: none; }
-
-    .secret-lock { text-align: center; margin-top: 40px; font-size: 22px; opacity: 0.15; padding: 10px; cursor: pointer; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; }
+    .modal-content h3 { margin-bottom: 15px; }
+    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-cancel { flex: 1; background: #ccc; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
+    .btn-confirm { flex: 1; background: var(--primary); color: white; border: none; padding: 10px; border-radius: 5px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <div class="header">
-    <h2>
-      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjMWE1ZmI0Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLCBBcmlhbCIgZm9udC1zaXplPSI2NSIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCI+UjwvdGV4dD48L3N2Zz4=" class="header-logo" alt="R">
-      Raj Traders
-    </h2>
-    <span class="sync-btn" id="syncStatus" onclick="backgroundSync()">🟢 Ready</span>
+    <h1>Raj Traders Catalog</h1>
+    <div>
+      <span id="syncStatus" style="font-size:0.8rem; margin-right:10px;">⚪ Loading...</span>
+      <button class="btn" onclick="toggleLanguage()" id="langToggle">मराठी</button>
+      <button class="btn" onclick="toggleAdmin()">⚙️</button>
+    </div>
   </div>
 
-  <div class="lang-row">
-    <button id="langToggle" class="lang-btn" onclick="toggleLanguage()">मराठी</button>
+  <div class="search-container">
+    <input type="text" id="searchBar" placeholder="🔍 Search catalog..." onkeyup="displayItems()">
   </div>
-  
-  <div class="category-bar" id="categoryBar"></div>
-  <input type="text" id="searchBar" class="search-input" placeholder="🔍 Search catalog..." oninput="displayItems()">
-  <div id="resultsList"></div>
+
+  <div class="category-scroll" id="categoryBar"></div>
 
   <div class="admin-panel" id="adminPanel">
-    <h3>Add New Item</h3>
-    <select id="adminCategorySelect" class="admin-select" onchange="handleAdminCategoryChange()"></select>
-    <div id="newCategoryWrapper" style="display:none;">
-      <input type="text" id="newCategoryInput" class="admin-input" placeholder="Type New Category Name">
+    <h3>🛠️ Add New Item</h3>
+    <div class="input-group">
+      <select id="adminCategorySelect" onchange="handleAdminCategoryChange()"></select>
     </div>
-    <input type="text" id="itemName" class="admin-input" placeholder="Item Name (e.g. Brass Tap)">
-    <input type="number" id="itemPrice" class="admin-input" placeholder="Price (₹)">
-    <input type="text" id="newPhoto" class="admin-input" placeholder="Photo Link (Google Drive / Direct URL)">
-    <button class="admin-save-btn" id="saveNewBtn" onclick="saveNewItem()">Save to Catalog</button>
+    <div class="input-group" id="newCategoryWrapper" style="display:none;">
+      <input type="text" id="newCategoryInput" placeholder="Enter New Category Name">
+    </div>
+    <div class="input-group">
+      <input type="text" id="itemName" placeholder="Item Name (English)">
+    </div>
+    <div class="input-group">
+      <input type="number" id="itemPrice" placeholder="Price (₹)">
+    </div>
+    <button class="btn-save" id="saveNewBtn" onclick="saveNewItem()">Save to Catalog</button>
   </div>
 
-  <div id="editModal" class="modal">
+  <div class="item-list" id="resultsList"></div>
+
+  <div class="modal" id="editModal">
     <div class="modal-content">
-      <h3>Edit Item Details</h3>
-      <input type="hidden" id="editItemKey">
-      <label>English Name (Identifier)</label>
-      <input type="text" id="editName" class="admin-input" readonly style="background:#f0f0f0; color:#666;">
-      <label>Price (₹)</label>
-      <input type="number" id="editPrice" class="admin-input">
-      <label>Photo Link</label>
-      <input type="text" id="editPhoto" class="admin-input" placeholder="Paste image URL here">
-      <label>Custom Marathi Name (Optional)</label>
-      <input type="text" id="editMarathi" class="admin-input" placeholder="e.g. पितळी टॅप">
-      
-      <div style="display:flex; gap:10px; margin-top:15px;">
-        <button class="admin-save-btn" id="saveEditBtn" onclick="saveEdit()">Save Changes</button>
-        <button class="action-btn btn-del" onclick="closeEditModal()" style="margin:0; padding:14px; width:40%;">Cancel</button>
+      <h3>Edit Item</h3>
+      <input type="hidden" id="editOldKey">
+      <div class="input-group">
+        <label style="font-size:0.8rem; color:#666;">Item Name</label>
+        <input type="text" id="editName">
+      </div>
+      <div class="input-group">
+        <label style="font-size:0.8rem; color:#666;">Price (₹)</label>
+        <input type="number" id="editPrice">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-confirm" id="saveEditBtn" onclick="saveEdit()">Save Changes</button>
       </div>
     </div>
   </div>
-
-  <div id="imageModal" class="img-modal" onclick="closeImageModal()">
-    <button class="img-modal-close" onclick="closeImageModal()">&times;</button>
-    <img id="enlargedImg" class="img-modal-content" src="" alt="Enlarged Photo" onclick="event.stopPropagation()">
-  </div>
-
-  <div class="secret-lock" onclick="toggleAdmin()">🔒</div>
     <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
     const ADMIN_PIN = "2241"; 
 
     let items = [];
     let itemsByKey = {};
-    let categoryMarathiCache = {};
     let currentCategory = 'All';
     let uniqueCategories = new Set();
     let isAdmin = false;
@@ -194,13 +187,6 @@
       }).join(' ');
     }
 
-    function ensureSizePreserved(marathiText, englishName) {
-      if (!marathiText) return transliterateName(englishName);
-      const sizeTokens = englishName.split(/\s+/).filter(isPureSizeToken);
-      const missing = sizeTokens.filter(t => !marathiText.includes(t));
-      return missing.length ? (marathiText.trim() + ' ' + missing.join(' ')) : marathiText;
-    }
-
     function fixImageLink(url) {
       if (!url || typeof url !== 'string') return '';
       let cleanUrl = url.trim();
@@ -213,38 +199,22 @@
 
     function normalizeRawItem(raw) {
       if (typeof raw !== 'object' || raw === null) return null;
-      const getVal = (keys) => {
-        for (let k of Object.keys(raw)) {
-          let cleanK = k.toString().toLowerCase().trim();
-          if (keys.some(p => cleanK.includes(p))) return raw[k];
-        }
-        return '';
-      };
-      let name = getVal(['item name', 'name', 'item', 'key']);
-      if (!name && Object.keys(raw).length > 0) name = raw[Object.keys(raw)[0]];
+      let name = raw['item name'] || raw['name'] || raw['item'] || raw['key'] || raw[Object.keys(raw)[0]];
       if (!name) return null;
-      let category = getVal(['category', 'cat']);
-      if (!category && name.toString().includes(':')) {
-        const parts = name.toString().split(':');
-        category = parts[0].trim(); name = parts.slice(1).join(':').trim();
-      }
+      
+      let category = raw['category'] || raw['cat'] || 'General';
+      let price = raw['price'] || raw['rate'] || raw['cost'] || '';
+      let marathi = raw['marathi'] || '';
+      let photo = raw['photo'] || raw['image'] || raw['link'] || '';
+      
       return {
         key: name.toString().trim(),
-        category: (category || 'General').toString().charAt(0).toUpperCase() + (category || 'General').toString().slice(1).toLowerCase(),
+        category: category.toString().trim(),
         name: name.toString().trim(),
-        price: getVal(['price', 'rate', 'cost']),
-        marathi: getVal(['marathi']).toString().trim(),
-        photo: fixImageLink(getVal(['photo', 'image', 'link', 'url', 'pic']))
+        price: price.toString().trim(),
+        marathi: marathi.toString().trim(),
+        photo: fixImageLink(photo)
       };
-    }
-
-    function computeMarathiFields() {
-      const catCache = {};
-      items.forEach(item => {
-        item._marathiName = item.marathi ? ensureSizePreserved(item.marathi, item.name) : transliterateName(item.name);
-        if (!catCache[item.category]) catCache[item.category] = transliterateName(item.category);
-      });
-      categoryMarathiCache = catCache;
     }
 
     async function backgroundSync() {
@@ -254,10 +224,18 @@
         const response = await fetch(API_URL);
         const text = await response.text();
         const rawData = JSON.parse(text); 
+        
         items = rawData.map(normalizeRawItem).filter(Boolean);
         itemsByKey = {};
-        items.forEach(it => { itemsByKey[it.key] = it; });
-        computeMarathiFields();
+        uniqueCategories.clear();
+        uniqueCategories.add('All');
+
+        items.forEach(it => { 
+          it._marathiName = it.marathi || transliterateName(it.name);
+          itemsByKey[it.key.toLowerCase()] = it; 
+          uniqueCategories.add(it.category);
+        });
+
         buildCategories();
         displayItems();
         if (status) status.innerText = "🟢 Live";
@@ -267,13 +245,11 @@
     }
 
     function buildCategories() {
-      uniqueCategories.clear();
-      uniqueCategories.add('All');
-      items.forEach(item => uniqueCategories.add(item.category));
       let catHtml = [];
       uniqueCategories.forEach(cat => {
-        let label = cat === 'All' ? (currentLang === 'mr' ? 'सर्व' : 'All') : (currentLang === 'mr' ? (categoryMarathiCache[cat] || cat) : cat);
-        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${sanitizeHTML(cat)}')">${sanitizeHTML(label)}</button>`);
+        let displayCat = currentLang === 'mr' ? transliterateName(cat) : cat;
+        if (cat === 'All') displayCat = currentLang === 'mr' ? 'सर्व' : 'All';
+        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${sanitizeHTML(cat)}')">${sanitizeHTML(displayCat)}</button>`);
       });
       document.getElementById('categoryBar').innerHTML = catHtml.join('');
       
@@ -300,27 +276,23 @@
         if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
 
         const displayName = currentLang === 'mr' ? item._marathiName : item.name;
-        const categoryLabel = currentLang === 'mr' ? (categoryMarathiCache[item.category] || item.category) : item.category;
-        
+        const displayCat = currentLang === 'mr' ? transliterateName(item.category) : item.category;
         const priceNum = parseFloat(item.price);
         const priceDisplay = isNaN(priceNum) ? '—' : `₹${priceNum}`;
         const safeKey = sanitizeHTML(item.key);
-        const safePhoto = sanitizeHTML(item.photo);
-
-        let thumbContent = item.photo 
-          ? `<img class="item-thumb" src="${safePhoto}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<span class=\\'item-thumb-placeholder\\'>📷</span>';">`
-          : `<span class="item-thumb-placeholder">📷</span>`;
+        
+        let thumbHtml = item.photo 
+          ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="IMG" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'item-thumb-placeholder\\'>📷</div>';">`
+          : `<div class="item-thumb-placeholder">📷</div>`;
 
         html.push(`
           <div class="item-card">
-            <div class="item-thumb-container" onclick="openImageModal('${safePhoto}')" title="Click to enlarge">
-              ${thumbContent}
-            </div>
+            <div class="item-thumb-container">${thumbHtml}</div>
             <div class="item-wrapper">
               <div class="top-row">
                 <div class="item-info">
                   <span class="item-name">${sanitizeHTML(displayName)}</span>
-                  <span class="item-cat">${sanitizeHTML(categoryLabel)}</span>
+                  <span class="item-cat">${sanitizeHTML(displayCat)}</span>
                 </div>
                 <div class="item-price">${priceDisplay}</div>
               </div>
@@ -346,7 +318,8 @@
       localStorage.setItem('raj_traders_lang', currentLang);
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
       document.getElementById('searchBar').placeholder = currentLang === 'mr' ? '🔍 कॅटलॉग शोधा...' : '🔍 Search catalog...';
-      buildCategories(); displayItems();
+      buildCategories(); 
+      displayItems();
     }
 
     function toggleAdmin() {
@@ -363,25 +336,12 @@
       document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
     }
 
-    function openImageModal(url) {
-      if (!url || url === 'undefined') return;
-      document.getElementById('enlargedImg').src = url;
-      document.getElementById('imageModal').style.display = 'flex';
-    }
-
-    function closeImageModal() {
-      document.getElementById('imageModal').style.display = 'none';
-      document.getElementById('enlargedImg').src = "";
-    }
-
     function openEditModal(key) {
-      const item = itemsByKey[key];
+      const item = itemsByKey[key.toLowerCase()];
       if (!item) return;
-      document.getElementById('editItemKey').value = key;
+      document.getElementById('editOldKey').value = item.key;
       document.getElementById('editName').value = item.name;
       document.getElementById('editPrice').value = item.price;
-      document.getElementById('editPhoto').value = item.photo || '';
-      document.getElementById('editMarathi').value = item.marathi || '';
       document.getElementById('editModal').style.display = 'flex';
       document.getElementById('saveEditBtn').innerText = "Save Changes";
     }
@@ -391,35 +351,38 @@
     }
 
     function saveEdit() {
-      const key = document.getElementById('editItemKey').value;
-      const item = itemsByKey[key];
-      const btn = document.getElementById('saveEditBtn');
-      
+      const oldKey = document.getElementById('editOldKey').value;
+      const oldItem = itemsByKey[oldKey.toLowerCase()];
+      if (!oldItem) return;
+
+      const newName = document.getElementById('editName').value.trim();
       const newPrice = document.getElementById('editPrice').value.trim();
-      const newPhoto = fixImageLink(document.getElementById('editPhoto').value.trim());
-      const newMarathi = document.getElementById('editMarathi').value.trim();
+      const btn = document.getElementById('saveEditBtn');
+      btn.innerText = "Saving...";
 
-      btn.innerText = "Saved!"; 
-      
-      item.price = newPrice;
-      item.photo = newPhoto;
-      item.marathi = newMarathi;
-      computeMarathiFields();
-      displayItems();
-      
-      setTimeout(() => closeEditModal(), 600);
-
-      try {
-        fetch(API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            action: 'upsert', category: item.category, name: item.name,
-            price: newPrice, photo: newPhoto, marathi: newMarathi
-          })
+      if (newName.toLowerCase() !== oldKey.toLowerCase()) {
+        items = items.filter(i => i.key.toLowerCase() !== oldKey.toLowerCase());
+        delete itemsByKey[oldKey.toLowerCase()];
+        
+        const newItem = { key: newName, category: oldItem.category, name: newName, price: newPrice, photo: oldItem.photo, marathi: oldItem.marathi, _marathiName: oldItem.marathi || transliterateName(newName) };
+        items.push(newItem);
+        itemsByKey[newName.toLowerCase()] = newItem;
+        displayItems();
+        closeEditModal();
+        
+        fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'delete', name: oldKey }) }).then(() => {
+          fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: newName, price: newPrice }) });
         });
-      } catch (err) { console.error(err); }
+      } else {
+        oldItem.price = newPrice;
+        displayItems();
+        closeEditModal();
+        
+        fetch(API_URL, {
+          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: newName, price: newPrice })
+        });
+      }
     }
 
     function saveNewItem() {
@@ -427,18 +390,22 @@
       let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
       const name = document.getElementById('itemName').value.trim();
       const price = document.getElementById('itemPrice').value.trim();
-      const photo = fixImageLink(document.getElementById('newPhoto').value.trim());
 
       if (!name || !price) { alert("Please enter item name and price"); return; }
-      
       const btn = document.getElementById('saveNewBtn');
       btn.innerText = "Saved!";
       
-      const newItem = { key: name, category: cat, name: name, price: price, photo: photo, marathi: '' };
-      items.push(newItem);
-      itemsByKey[name] = newItem;
+      const lookupKey = name.toLowerCase();
+      if (itemsByKey[lookupKey]) {
+        itemsByKey[lookupKey].category = cat;
+        itemsByKey[lookupKey].price = price;
+      } else {
+        const newItem = { key: name, category: cat, name: name, price: price, photo: '', marathi: '', _marathiName: transliterateName(name) };
+        items.push(newItem);
+        itemsByKey[lookupKey] = newItem;
+      }
+      
       uniqueCategories.add(cat);
-      computeMarathiFields();
       buildCategories();
       displayItems();
 
@@ -446,37 +413,27 @@
         btn.innerText = "Save to Catalog";
         document.getElementById('itemName').value = '';
         document.getElementById('itemPrice').value = '';
-        document.getElementById('newPhoto').value = '';
         document.getElementById('newCategoryInput').value = '';
         if(select.value === '__NEW__') select.value = cat;
       }, 1000);
 
-      try {
-        fetch(API_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price, photo: photo })
-        });
-      } catch (err) { console.error(err); }
+      fetch(API_URL, {
+        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price })
+      });
     }
 
     function deleteItem(key) {
       if (!confirm(`Delete "${key}" from catalog?`)) return;
-      
-      items = items.filter(i => i.key !== key);
-      delete itemsByKey[key];
+      items = items.filter(i => i.key.toLowerCase() !== key.toLowerCase());
+      delete itemsByKey[key.toLowerCase()];
       buildCategories();
       displayItems();
 
-      try {
-        fetch(API_URL, { 
-          method: 'POST', 
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'delete', key: key }) 
-        });
-      } catch (err) { console.error(err); }
+      fetch(API_URL, { 
+        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ action: 'delete', name: key }) 
+      });
     }
 
     window.onload = () => {
@@ -487,3 +444,4 @@
   </script>
 </body>
 </html>
+
