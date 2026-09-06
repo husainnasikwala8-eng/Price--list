@@ -197,16 +197,29 @@
       return cleanUrl;
     }
 
+    // Flexible parser that scans object keys case-insensitively
     function normalizeRawItem(raw) {
       if (typeof raw !== 'object' || raw === null) return null;
-      let name = raw['item name'] || raw['name'] || raw['item'] || raw['key'] || raw[Object.keys(raw)[0]];
+      
+      let keys = Object.keys(raw);
+      let getVal = (keywords) => {
+        for (let k of keys) {
+          let lk = k.toLowerCase().trim();
+          for (let kw of keywords) {
+            if (lk.includes(kw)) return raw[k];
+          }
+        }
+        return '';
+      };
+
+      let name = getVal(['item name', 'name', 'item', 'product', 'title']) || raw[keys[0]];
       if (!name) return null;
-      
-      let category = raw['category'] || raw['cat'] || 'General';
-      let price = raw['price'] || raw['rate'] || raw['cost'] || '';
-      let marathi = raw['marathi'] || '';
-      let photo = raw['photo'] || raw['image'] || raw['link'] || '';
-      
+
+      let category = getVal(['cat', 'group', 'section']) || 'General';
+      let price = getVal(['price', 'rate', 'cost', 'amount']);
+      let marathi = getVal(['marathi', 'mr', 'translation']);
+      let photo = getVal(['photo', 'image', 'img', 'picture', 'link', 'url']);
+
       return {
         key: name.toString().trim(),
         category: category.toString().trim(),
@@ -221,7 +234,7 @@
       const status = document.getElementById('syncStatus');
       if (status) status.innerText = "🔄 Syncing...";
       try {
-        const response = await fetch(API_URL);
+        const response = await API_URL.startsWith('http') ? fetch(API_URL) : Promise.reject();
         const text = await response.text();
         const rawData = JSON.parse(text); 
         
@@ -240,7 +253,7 @@
         displayItems();
         if (status) status.innerText = "🟢 Live";
       } catch (error) {
-        if (status) status.innerText = "🟡 Local Only";
+        if (status) status.innerText = "🟡 Local Sync Error";
       }
     }
 
@@ -444,4 +457,5 @@
   </script>
 </body>
 </html>
+
 
