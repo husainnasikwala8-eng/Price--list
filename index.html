@@ -197,7 +197,6 @@
       return cleanUrl;
     }
 
-    // Flexible parser that scans object keys case-insensitively
     function normalizeRawItem(raw) {
       if (typeof raw !== 'object' || raw === null) return null;
       
@@ -215,7 +214,7 @@
       let name = getVal(['item name', 'name', 'item', 'product', 'title']) || raw[keys[0]];
       if (!name) return null;
 
-      let category = getVal(['cat', 'group', 'section']) || 'General';
+      let category = getVal(['cat', 'group', 'section', 'category']) || 'General';
       let price = getVal(['price', 'rate', 'cost', 'amount']);
       let marathi = getVal(['marathi', 'mr', 'translation']);
       let photo = getVal(['photo', 'image', 'img', 'picture', 'link', 'url']);
@@ -234,7 +233,7 @@
       const status = document.getElementById('syncStatus');
       if (status) status.innerText = "🔄 Syncing...";
       try {
-        const response = await API_URL.startsWith('http') ? fetch(API_URL) : Promise.reject();
+        const response = await fetch(API_URL);
         const text = await response.text();
         const rawData = JSON.parse(text); 
         
@@ -457,5 +456,3 @@
   </script>
 </body>
 </html>
-
-
