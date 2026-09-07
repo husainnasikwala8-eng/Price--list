@@ -145,8 +145,13 @@
     .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background: var(--bg); }
     .btn-save { width: 100%; background: var(--steel); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
 
-    .dup-toggle { width: 100%; background: var(--danger-soft); color: var(--danger); border: 1px solid var(--danger); padding: 10px; border-radius: 6px; font-size: 0.88rem; font-weight: 600; cursor: pointer; display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom: 16px; }
-    .dup-toggle svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .dup-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+    .dup-summary { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 10px; }
+    .dup-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+    .dup-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--ink); padding: 9px 6px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .dup-btn-danger { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .health-btn { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); padding: 9px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .health-btn svg { width: 14px; height: 14px; }
 
     .admin-actions { display: none; margin-top: 10px; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
     .edit-mode .admin-actions { display: flex; }
@@ -187,10 +192,17 @@
   <div class="category-scroll" id="categoryBar"></div>
 
   <div class="admin-panel" id="adminPanel">
-    <button class="dup-toggle" id="dupToggleBtn" onclick="toggleDuplicatesView()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>
-      <span id="dupToggleLabel">Checking for duplicates…</span>
-    </button>
+    <div class="dup-panel">
+      <div class="dup-summary" id="dupSummary">Checking for duplicates…</div>
+      <div class="dup-actions">
+        <button class="dup-btn" id="dupFilterBtn" onclick="toggleDuplicatesView()">Show duplicates only</button>
+        <button class="dup-btn dup-btn-danger" id="dupCleanBtn" onclick="cleanupDuplicates()">Clean up duplicates</button>
+      </div>
+      <button class="health-btn" onclick="checkCatalogHealth()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Check catalog health
+      </button>
+    </div>
     <h3>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L2 19l3 3 7.1-7.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5z"/></svg>
       Add New Item
@@ -215,7 +227,7 @@
   <div class="modal" id="editModal">
     <div class="modal-content">
       <h3>Edit Item</h3>
-      <input type="hidden" id="editOldKey">
+      <input type="hidden" id="editRow">
       <div class="input-group">
         <label>Item Name</label>
         <input type="text" id="editName">
@@ -252,7 +264,7 @@
     }
 
     let items = [];
-    let itemsByKey = {};
+    let itemsByRow = {};
     let currentCategory = 'All';
     let uniqueCategories = new Set();
     let isAdmin = false;
@@ -332,78 +344,84 @@
 
     function normalizeRawItem(raw) {
       if (typeof raw !== 'object' || raw === null) return null;
-      
-      let keys = Object.keys(raw);
-      let getVal = (keywords) => {
-        for (let k of keys) {
-          let lk = k.toLowerCase().trim();
-          for (let kw of keywords) {
-            if (lk.includes(kw)) return raw[k];
-          }
-        }
-        return '';
-      };
-
-      let rawNameField = (getVal(['item name', 'name', 'item', 'product', 'title']) || raw[keys[0]]);
-      if (!rawNameField) return null;
-      rawNameField = rawNameField.toString().trim();
-
-      let category = getVal(['cat', 'group', 'section', 'category']).toString().trim();
-      let displayName = rawNameField;
-
-      if (!category) {
-        const splitMatch = rawNameField.match(/^([A-Za-z][A-Za-z\s]{0,30})[\/:]\s*(.+)$/);
-        if (splitMatch) {
-          category = splitMatch[1].trim();
-          displayName = splitMatch[2].trim();
-        }
-      }
+      const name = (raw['Item Name'] || '').toString().trim();
+      if (!name) return null;
+      let category = (raw['Category'] || raw['category'] || '').toString().trim();
       if (!category) category = 'General';
       category = category.charAt(0).toUpperCase() + category.slice(1);
-
-      let price = getVal(['price', 'rate', 'cost', 'amount']);
-      let marathi = getVal(['marathi', 'mr', 'translation']);
-      let photo = getVal(['photo', 'image', 'img', 'picture', 'link', 'url']);
-
       return {
-        key: rawNameField,
+        row: raw['_row'],
+        rawName: (raw['_raw'] || name).toString(),
         category: category,
-        name: displayName,
-        price: price.toString().trim(),
-        marathi: marathi.toString().trim(),
-        photo: fixImageLink(photo)
+        name: name,
+        price: (raw['Price'] || '').toString().trim(),
+        marathi: (raw['Marathi'] || '').toString().trim(),
+        photo: fixImageLink(raw['Photo']),
+        isDuplicate: raw['_duplicate'] === true
       };
     }
 
-    function computeDuplicates() {
-      const counts = {};
-      items.forEach(it => {
-        const comboKey = (it.category + '|' + it.name).toLowerCase();
-        counts[comboKey] = (counts[comboKey] || 0) + 1;
-      });
-      items.forEach(it => {
-        it._isDuplicate = counts[(it.category + '|' + it.name).toLowerCase()] > 1;
-      });
-      updateDupToggleLabel();
-    }
-
-    function updateDupToggleLabel() {
-      const label = document.getElementById('dupToggleLabel');
-      if (!label) return;
-      const dupCount = items.filter(i => i._isDuplicate).length;
+    function updateDupSummary() {
+      const summary = document.getElementById('dupSummary');
+      if (!summary) return;
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      const filterBtn = document.getElementById('dupFilterBtn');
+      const cleanBtn = document.getElementById('dupCleanBtn');
       if (dupCount === 0) {
-        label.innerText = 'No duplicates found';
-      } else if (showDuplicatesOnly) {
-        label.innerText = `Showing ${dupCount} duplicate item(s) — tap to show all`;
+        summary.innerText = 'No duplicates found';
+        if (filterBtn) filterBtn.style.display = 'none';
+        if (cleanBtn) cleanBtn.style.display = 'none';
       } else {
-        label.innerText = `${dupCount} duplicate item(s) found — tap to review`;
+        summary.innerText = `${dupCount} duplicate item(s) found`;
+        if (filterBtn) { filterBtn.style.display = ''; filterBtn.innerText = showDuplicatesOnly ? 'Show all items' : 'Show duplicates only'; }
+        if (cleanBtn) cleanBtn.style.display = '';
       }
     }
 
     function toggleDuplicatesView() {
       showDuplicatesOnly = !showDuplicatesOnly;
-      updateDupToggleLabel();
+      updateDupSummary();
       displayItems();
+    }
+
+    async function cleanupDuplicates() {
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      if (dupCount === 0) { alert('No duplicates to clean up.'); return; }
+      if (!confirm(`This will merge ${dupCount} duplicate item(s) — keeping one row per item and filling in any missing price/photo/Marathi from the others — then delete the extra rows. Continue?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'dedupe', confirm: true })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Cleanup failed: ' + data.message); return; }
+        alert(`Merged ${data.merged} group(s), removed ${data.removed} extra row(s).`);
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — cleanup did not complete. Try again.');
+      }
+    }
+
+    async function checkCatalogHealth() {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'diagnose' })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Could not run diagnostics: ' + data.message); return; }
+        const c = data.counts;
+        alert(
+          `Catalog health report:\n\n` +
+          `• ${c.duplicateGroups} duplicate group(s)\n` +
+          `• ${c.doubledCategory} item(s) with a repeated category prefix\n` +
+          `• ${c.generalOrphans} item(s) with no category (missing ":" in the Sheet)\n` +
+          `• ${c.blankPrice} item(s) with no price\n\n` +
+          `Nothing was changed. Fix category-format issues directly in the Sheet's Name column, e.g. "Plumbing: Ball Valve".`
+        );
+      } catch (err) {
+        alert('Network error while checking catalog health.');
+      }
     }
 
     async function backgroundSync() {
@@ -411,23 +429,22 @@
       if (status) status.innerText = "🔄";
       try {
         const response = await fetch(API_URL);
-        const text = await response.text();
-        const rawData = JSON.parse(text); 
+        const rawData = await response.json();
         
         items = rawData.map(normalizeRawItem).filter(Boolean);
-        itemsByKey = {};
+        itemsByRow = {};
         uniqueCategories.clear();
         uniqueCategories.add('All');
 
         items.forEach(it => { 
           it._marathiName = it.marathi || transliterateName(it.name);
-          itemsByKey[it.key.toLowerCase()] = it; 
+          itemsByRow[it.row] = it; 
           uniqueCategories.add(it.category);
         });
 
-        computeDuplicates();
         buildCategories();
         displayItems();
+        updateDupSummary();
         if (status) status.innerText = "🟢";
       } catch (error) {
         if (status) status.innerText = "🟡";
@@ -463,7 +480,7 @@
       let shown = 0;
       for (const item of items) {
         if (currentCategory !== 'All' && currentCategory !== item.category) continue;
-        if (showDuplicatesOnly && !item._isDuplicate) continue;
+        if (showDuplicatesOnly && !item.isDuplicate) continue;
         const searchTarget = (item.name + ' ' + (item._marathiName || '') + ' ' + item.category).toLowerCase();
         if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
 
@@ -472,16 +489,16 @@
         const displayCat = currentLang === 'mr' ? transliterateName(item.category) : item.category;
         const priceNum = parseFloat(item.price);
         const priceDisplay = isNaN(priceNum) ? '—' : `₹${priceNum}`;
-        const safeKey = sanitizeHTML(item.key);
         
         let thumbHtml = item.photo 
           ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="${sanitizeHTML(item.name)}" loading="lazy" onerror="handleImgError(this)">`
           : ICON_CAMERA;
 
-        const dupTagHtml = item._isDuplicate ? `<span class="dup-tag">${ICON_WARNING}Duplicate</span>` : '';
+        const dupTagHtml = item.isDuplicate ? `<span class="dup-tag">${ICON_WARNING}Duplicate</span>` : '';
+        const stripeColor = item.isDuplicate ? 'var(--danger)' : categoryColor(item.category);
 
         html.push(`
-          <div class="item-card" style="--cat-color:${categoryColor(item.category)}">
+          <div class="item-card" style="--cat-color:${stripeColor}">
             <div class="item-thumb-container">${thumbHtml}</div>
             <div class="item-wrapper">
               <div class="top-row">
@@ -495,18 +512,16 @@
                 <div class="item-price">${priceDisplay}</div>
               </div>
               <div class="admin-actions">
-                <button class="action-btn btn-edit" data-key="${safeKey}" onclick="openEditModal(this.getAttribute('data-key'))">${ICON_EDIT}Edit</button>
-                <button class="action-btn btn-del" data-key="${safeKey}" onclick="deleteItem(this.getAttribute('data-key'))">${ICON_DELETE}Delete</button>
+                <button class="action-btn btn-edit" onclick="openEditModal(${item.row})">${ICON_EDIT}Edit</button>
+                <button class="action-btn btn-del" onclick="deleteItem(${item.row})">${ICON_DELETE}Delete</button>
               </div>
             </div>
           </div>
         `);
       }
-      if (shown === 0) {
-        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No items match.</div>`;
-      } else {
-        resultsList.innerHTML = html.join('');
-      }
+      resultsList.innerHTML = shown === 0
+        ? `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No items match.</div>`
+        : html.join('');
     }
 
     function setCategory(cat) { 
@@ -526,7 +541,7 @@
 
     function toggleAdmin() {
       if (!isAdmin) {
-        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; updateDupToggleLabel(); displayItems(); }
+        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; updateDupSummary(); displayItems(); }
         else alert("Incorrect PIN");
       } else {
         isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; showDuplicatesOnly = false; displayItems();
@@ -538,10 +553,10 @@
       document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
     }
 
-    function openEditModal(key) {
-      const item = itemsByKey[key.toLowerCase()];
+    function openEditModal(row) {
+      const item = itemsByRow[row];
       if (!item) return;
-      document.getElementById('editOldKey').value = item.key;
+      document.getElementById('editRow').value = row;
       document.getElementById('editName').value = item.name;
       document.getElementById('editPrice').value = item.price;
       document.getElementById('editModal').style.display = 'flex';
@@ -552,93 +567,97 @@
       document.getElementById('editModal').style.display = 'none'; 
     }
 
-    function saveEdit() {
-      const oldKey = document.getElementById('editOldKey').value;
-      const oldItem = itemsByKey[oldKey.toLowerCase()];
-      if (!oldItem) return;
+    async function saveEdit() {
+      const row = parseInt(document.getElementById('editRow').value, 10);
+      const item = itemsByRow[row];
+      if (!item) return;
 
       const newName = document.getElementById('editName').value.trim();
       const newPrice = document.getElementById('editPrice').value.trim();
       const btn = document.getElementById('saveEditBtn');
       btn.innerText = "Saving...";
+      btn.disabled = true;
 
-      if (newName.toLowerCase() !== oldItem.name.toLowerCase()) {
-        items = items.filter(i => i.key.toLowerCase() !== oldKey.toLowerCase());
-        delete itemsByKey[oldKey.toLowerCase()];
-        
-        const newItem = { key: newName, category: oldItem.category, name: newName, price: newPrice, photo: oldItem.photo, marathi: oldItem.marathi, _marathiName: oldItem.marathi || transliterateName(newName) };
-        items.push(newItem);
-        itemsByKey[newName.toLowerCase()] = newItem;
-        computeDuplicates();
-        displayItems();
+      try {
+        let data;
+        if (newName.toLowerCase() !== item.name.toLowerCase()) {
+          const newFull = item.category + ': ' + newName;
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'rename', oldName: item.rawName, newName: newFull })
+          });
+          data = await res.json();
+        } else {
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'upsert', category: item.category, name: item.name, price: newPrice })
+          });
+          data = await res.json();
+        }
+        if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+          btn.disabled = false;
+          btn.innerText = "Save Changes";
+          return;
+        }
         closeEditModal();
-        
-        fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'delete', name: oldKey }) }).then(() => {
-          fetch(API_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: newName, price: newPrice }) });
-        });
-      } else {
-        oldItem.price = newPrice;
-        displayItems();
-        closeEditModal();
-        
-        fetch(API_URL, {
-          method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'upsert', category: oldItem.category, name: oldItem.key, price: newPrice })
-        });
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — nothing was saved. Try again.');
+        btn.disabled = false;
+        btn.innerText = "Save Changes";
       }
     }
 
-    function saveNewItem() {
+    async function saveNewItem() {
       const select = document.getElementById('adminCategorySelect');
       let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
       const name = document.getElementById('itemName').value.trim();
       const price = document.getElementById('itemPrice').value.trim();
 
-      if (!name || !price) { alert("Please enter item name and price"); return; }
+      if (!name || !price || !cat) { alert("Please enter category, item name and price"); return; }
       const btn = document.getElementById('saveNewBtn');
-      btn.innerText = "Saved!";
-      
-      const lookupKey = name.toLowerCase();
-      if (itemsByKey[lookupKey]) {
-        itemsByKey[lookupKey].category = cat;
-        itemsByKey[lookupKey].price = price;
-      } else {
-        const newItem = { key: name, category: cat, name: name, price: price, photo: '', marathi: '', _marathiName: transliterateName(name) };
-        items.push(newItem);
-        itemsByKey[lookupKey] = newItem;
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price })
+        });
+        const data = await res.json();
+        if (data.status === 'ambiguous') {
+          alert(data.message);
+        } else if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+        } else {
+          document.getElementById('itemName').value = '';
+          document.getElementById('itemPrice').value = '';
+          document.getElementById('newCategoryInput').value = '';
+          await backgroundSync();
+        }
+      } catch (err) {
+        alert('Network error — item was not saved. Try again.');
       }
-      
-      uniqueCategories.add(cat);
-      computeDuplicates();
-      buildCategories();
-      displayItems();
-
-      setTimeout(() => {
-        btn.innerText = "Save to Catalog";
-        document.getElementById('itemName').value = '';
-        document.getElementById('itemPrice').value = '';
-        document.getElementById('newCategoryInput').value = '';
-        if(select.value === '__NEW__') select.value = cat;
-      }, 1000);
-
-      fetch(API_URL, {
-        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price })
-      });
+      btn.disabled = false;
+      btn.innerText = "Save to Catalog";
     }
 
-    function deleteItem(key) {
-      if (!confirm(`Delete "${key}" from catalog?`)) return;
-      items = items.filter(i => i.key.toLowerCase() !== key.toLowerCase());
-      delete itemsByKey[key.toLowerCase()];
-      computeDuplicates();
-      buildCategories();
-      displayItems();
-
-      fetch(API_URL, { 
-        method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'delete', name: key }) 
-      });
+    async function deleteItem(row) {
+      const item = itemsByRow[row];
+      if (!item) return;
+      if (!confirm(`Delete "${item.name}" from catalog?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'delete', row: row })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Delete failed: ' + data.message); return; }
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — item was not deleted. Try again.');
+      }
     }
 
     window.onload = () => {
