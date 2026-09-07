@@ -360,7 +360,7 @@
         isDuplicate: raw['_duplicate'] === true
       };
     }
-
+    
     function updateDupSummary() {
       const summary = document.getElementById('dupSummary');
       if (!summary) return;
@@ -448,6 +448,12 @@
         if (status) status.innerText = "🟢";
       } catch (error) {
         if (status) status.innerText = "🟡";
+        if (items.length === 0) {
+          uniqueCategories.clear();
+          uniqueCategories.add('All');
+          buildCategories();
+          document.getElementById('resultsList').innerHTML = `<div style="text-align:center; padding:30px; color:var(--ink-soft);">Couldn't load the catalog.<br><button onclick="backgroundSync()" style="margin-top:12px; background:var(--steel); color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Retry</button></div>`;
+        }
       }
     }
 
@@ -575,16 +581,26 @@
       const newName = document.getElementById('editName').value.trim();
       const newPrice = document.getElementById('editPrice').value.trim();
       const btn = document.getElementById('saveEditBtn');
+      const isRename = newName.toLowerCase() !== item.name.toLowerCase();
+
+      if (isRename) {
+        const collision = items.find(i => i.row !== item.row && i.category.toLowerCase() === item.category.toLowerCase() && i.name.toLowerCase() === newName.toLowerCase());
+        if (collision) {
+          const goAhead = confirm(`Another item is already named "${newName}" under "${item.category}" (₹${collision.price || '—'}). Renaming will create a duplicate. Continue anyway?`);
+          if (!goAhead) return;
+        }
+      }
+
       btn.innerText = "Saving...";
       btn.disabled = true;
 
       try {
         let data;
-        if (newName.toLowerCase() !== item.name.toLowerCase()) {
+        if (isRename) {
           const newFull = item.category + ': ' + newName;
           const res = await fetch(API_URL, {
             method: 'POST', headers: { 'Content-Type': 'text/plain' },
-            body: JSON.stringify({ action: 'rename', oldName: item.rawName, newName: newFull })
+            body: JSON.stringify({ action: 'rename', row: item.row, oldName: item.rawName, newName: newFull })
           });
           data = await res.json();
         } else {
@@ -616,6 +632,14 @@
       const price = document.getElementById('itemPrice').value.trim();
 
       if (!name || !price || !cat) { alert("Please enter category, item name and price"); return; }
+
+      const nameLower = name.toLowerCase();
+      const sameNameElsewhere = items.find(i => i.name.toLowerCase() === nameLower && i.category.toLowerCase() !== cat.toLowerCase());
+      if (sameNameElsewhere) {
+        const goAhead = confirm(`"${name}" already exists under "${sameNameElsewhere.category}" (₹${sameNameElsewhere.price || '—'}).\n\nAdd this as a separate item under "${cat}" anyway? Tap Cancel to stop — you can edit the existing one instead.`);
+        if (!goAhead) return;
+      }
+
       const btn = document.getElementById('saveNewBtn');
       btn.innerText = "Saving...";
       btn.disabled = true;
