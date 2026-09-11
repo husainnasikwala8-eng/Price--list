@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Raj Traders Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #EDF0EF;
+      --surface: #FFFFFF;
+      --ink: #22282C;
+      --ink-soft: #5C6569;
+      --steel: #37454D;
+      --accent: #E8590C;
+      --accent-soft: #FCE7DA;
+      --price: #3F6B3F;
+      --border: #DBDFDC;
+      --danger: #B23A2E;
+      --danger-soft: #F7E2DF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding-bottom: 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .header {
+      background: var(--steel);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--accent);
+    }
+    .header h1 {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 1.2rem;
+      letter-spacing: 0.3px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .lang-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .search-container { padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .search-box { position: relative; }
+    .search-box svg {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--ink-soft); pointer-events: none;
+    }
+    .search-box input {
+      width: 100%; padding: 11px 12px 11px 38px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 1rem; background: var(--bg); color: var(--ink);
+    }
+
+    .category-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); scrollbar-width: none; }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .cat-btn.active {
+      color: var(--ink);
+      border-color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600;
+      background: var(--accent-soft);
+    }
+
+    .item-list { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .item-card {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cat-color, var(--steel));
+      display: flex; gap: 12px; align-items: center;
+    }
+
+    .item-thumb-container { width: 56px; height: 56px; flex-shrink: 0; border-radius: 5px; overflow: hidden; background: var(--bg); display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
+    .item-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .item-thumb-placeholder { width: 22px; height: 22px; color: #b7bcb9; }
+
+    .item-wrapper { flex-grow: 1; min-width: 0; }
+    .top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .item-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .item-name { font-weight: 600; font-size: 1rem; line-height: 1.25; }
+    .item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .item-cat { font-size: 0.75rem; color: var(--ink-soft); background: var(--bg); padding: 2px 7px; border-radius: 4px; }
+    .dup-tag { font-size: 0.72rem; color: var(--danger); background: var(--danger-soft); padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .dup-tag svg { width: 11px; height: 11px; }
+    .item-price {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      color: var(--price);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 1.05rem;
+      white-space: nowrap;
+    }
+
+    .admin-panel { display: none; background: var(--surface); padding: 16px; margin: 14px; border-radius: 8px; border: 1px solid var(--border); border-top: 3px solid var(--accent); }
+    .admin-panel h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 1rem; color: var(--steel); font-family: 'Oswald', sans-serif; font-weight: 500; }
+    .admin-panel h3 svg { width: 18px; height: 18px; }
+    .input-group { margin-bottom: 10px; }
+    .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background: var(--bg); }
+    .btn-save { width: 100%; background: var(--steel); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+
+    .dup-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+    .dup-summary { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 10px; }
+    .dup-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+    .dup-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--ink); padding: 9px 6px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .dup-btn-danger { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .health-btn { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); padding: 9px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .health-btn svg { width: 14px; height: 14px; }
+
+    .admin-actions { display: none; margin-top: 10px; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
+    .edit-mode .admin-actions { display: flex; }
+    .action-btn { flex: 1; padding: 8px; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.85rem; border: 1px solid; }
+    .action-btn svg { width: 14px; height: 14px; }
+    .btn-edit { background: #FDF3E3; color: #92660D; border-color: #E9C878; }
+    .btn-del { background: var(--danger-soft); color: var(--danger); border-color: #E3A99E; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(20,24,26,0.55); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; border-top: 3px solid var(--accent); }
+    .modal-content h3 { margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-weight: 500; color: var(--steel); }
+    .modal-content label { font-size: 0.8rem; color: var(--ink-soft); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-cancel { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-confirm { flex: 1; background: var(--steel); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Raj Traders Catalog</h1>
+    <div class="header-actions">
+      <span id="syncStatus" style="font-size:0.78rem; margin-right:2px;">⚪</span>
+      <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">मराठी</button>
+      <button class="icon-btn" onclick="toggleAdmin()" aria-label="Admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchBar" placeholder="Search catalog..." onkeyup="displayItems()">
+    </div>
+  </div>
+
+  <div class="category-scroll" id="categoryBar"></div>
+
+  <div class="admin-panel" id="adminPanel">
+    <div class="dup-panel">
+      <div class="dup-summary" id="dupSummary">Checking for duplicates…</div>
+      <div class="dup-actions">
+        <button class="dup-btn" id="dupFilterBtn" onclick="toggleDuplicatesView()">Show duplicates only</button>
+        <button class="dup-btn dup-btn-danger" id="dupCleanBtn" onclick="cleanupDuplicates()">Clean up duplicates</button>
+      </div>
+      <button class="health-btn" onclick="checkCatalogHealth()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Check catalog health
+      </button>
+    </div>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L2 19l3 3 7.1-7.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+      Add New Item
+    </h3>
+    <div class="input-group">
+      <select id="adminCategorySelect" onchange="handleAdminCategoryChange()"></select>
+    </div>
+    <div class="input-group" id="newCategoryWrapper" style="display:none;">
+      <input type="text" id="newCategoryInput" placeholder="Enter New Category Name">
+    </div>
+    <div class="input-group">
+      <input type="text" id="itemName" placeholder="Item Name (English)">
+    </div>
+    <div class="input-group">
+      <input type="number" id="itemPrice" placeholder="Price (₹)">
+    </div>
+    <button class="btn-save" id="saveNewBtn" onclick="saveNewItem()">Save to Catalog</button>
+  </div>
+
+  <div class="item-list" id="resultsList"></div>
+
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3>Edit Item</h3>
+      <input type="hidden" id="editRow">
+      <div class="input-group">
+        <label>Item Name</label>
+        <input type="text" id="editName">
+      </div>
+      <div class="input-group">
+        <label>Price (₹)</label>
+        <input type="number" id="editPrice">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-confirm" id="saveEditBtn" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
+    const ADMIN_PIN = "2241"; 
+
+    const ICON_CAMERA = `<svg class="item-thumb-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>`;
+    const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+    const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+    const ICON_WARNING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>`;
+    const CATEGORY_COLORS = ['#E8590C', '#3C4A52', '#4C7A3D', '#8A5A2B', '#5B7C99', '#946846'];
+
+    function categoryColor(cat) {
+      let hash = 0;
+      for (let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) >>> 0;
+      return CATEGORY_COLORS[hash % CATEGORY_COLORS.length];
+    }
+
+    function handleImgError(imgEl) {
+      imgEl.onerror = null;
+      imgEl.parentElement.innerHTML = ICON_CAMERA;
+    }
+
+    let items = [];
+    let itemsByRow = {};
+    let currentCategory = 'All';
+    let uniqueCategories = new Set();
+    let isAdmin = false;
+    let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
+    let showDuplicatesOnly = false;
+
+    function sanitizeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/[&<>'"]/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[match] || match));
+    }
+
+    const MARATHI_DICT = {
+      "plumbing": "प्लंबिंग", "paints": "पेंट", "paint": "पेंट", "fasteners": "फास्टनर्स", "hardware": "हार्डवेअर", 
+      "construction": "बांधकाम", "brass": "ब्रास", "iron": "लोखंड", "steel": "स्टील", "tap": "टॅप", 
+      "bibcock": "बिबकॉक", "valve": "व्हॉल्व्ह", "ball": "बॉल", "pipe": "पाईप", "hose": "होज", "clip": "क्लिप", 
+      "joint": "जॉइंट", "wrench": "पाना", "brush": "ब्रश", "roller": "रोलर", "hammer": "हातोडी", "bolt": "बोल्ट", 
+      "nut": "नट", "screw": "स्क्रू", "nail": "खिळा", "wire": "वायर", "mesh": "जाळी", "hinge": "बिजागरी", 
+      "lock": "कुलूप", "handle": "हँडल", "white": "पांढरा", "black": "काळा", "red": "लाल", "blue": "निळा", "yellow": "पिवळा"
+    };
+
+    function isPureSizeToken(raw) {
+      if (/\d/.test(raw)) return true;
+      const units = ['mm','cm','m','inch','ft','kg','g','lit','ml','no','w','watt'];
+      return units.includes(raw.toLowerCase().replace(/[^a-z]/g, ''));
+    }
+
+    function transliterateWord(rawWord) {
+      const w = rawWord.toLowerCase();
+      if (MARATHI_DICT[w]) return MARATHI_DICT[w];
+      const consonants = [['kh','ख'],['gh','घ'],['chh','छ'],['ch','च'],['jh','झ'],['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],['k','क'],['g','ग'],['j','ज'],['t','ट'],['d','ड'],['n','न'],['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],['v','व'],['w','व'],['s','स'],['h','ह'],['f','फ'],['z','झ'],['c','क']];
+      const vowelsIndep = [['aa','आ'],['ee','ई'],['oo','ऊ'],['ai','ऐ'],['au','औ'],['a','अ'],['i','इ'],['u','उ'],['e','ए'],['o','ओ']];
+      const vowelsMatra = [['aa','ा'],['ee','ी'],['oo','ू'],['ai','ै'],['au','ौ'],['a',''],['i','ि'],['u','ु'],['e','े'],['o','ो']];
+      let result = '', i = 0;
+      while (i < w.length) {
+        let matchedCons = null;
+        for (const pair of consonants) if (w.startsWith(pair[0], i)) { matchedCons = pair; break; }
+        if (matchedCons) {
+          i += matchedCons[0].length;
+          let matchedVowel = null;
+          for (const pair of vowelsMatra) if (pair[0] && w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedCons[1] + matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += matchedCons[1]; }
+        } else {
+          let matchedVowel = null;
+          for (const pair of vowelsIndep) if (w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += w[i]; i += 1; }
+        }
+      }
+      return result.trim() === '' ? rawWord : result; 
+    }
+
+    function transliterateName(text) {
+      if (!text) return "";
+      const lowerFull = text.toLowerCase().trim();
+      if (MARATHI_DICT[lowerFull]) return MARATHI_DICT[lowerFull];
+      return text.split(/\s+/).map(tok => {
+        if (isPureSizeToken(tok)) return tok;
+        const match = tok.match(/^([^a-zA-Z0-9]*)([a-zA-Z0-9.-]+)([^a-zA-Z0-9]*)$/);
+        let prefix = "", core = tok, suffix = "";
+        if (match) { prefix = match[1]; core = match[2]; suffix = match[3]; }
+        let cleanCore = core.toLowerCase().replace(/[^a-z]/g, '');
+        if (!cleanCore) return tok; 
+        return prefix + (MARATHI_DICT[cleanCore] || transliterateWord(cleanCore)) + suffix;
+      }).join(' ');
+    }
+
+    function fixImageLink(url) {
+      if (!url || typeof url !== 'string') return '';
+      let cleanUrl = url.trim();
+      const driveMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/) || cleanUrl.match(/id=([a-zA-Z0-9-_]+)/);
+      if (cleanUrl.includes('drive.google.com') && driveMatch) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+      }
+      return cleanUrl;
+    }
+
+    function normalizeRawItem(raw) {
+      if (typeof raw !== 'object' || raw === null) return null;
+      const name = (raw['Item Name'] || '').toString().trim();
+      if (!name) return null;
+      let category = (raw['Category'] || raw['category'] || '').toString().trim();
+      if (!category) category = 'General';
+      category = category.charAt(0).toUpperCase() + category.slice(1);
+      return {
+        row: raw['_row'],
+        rawName: (raw['_raw'] || name).toString(),
+        category: category,
+        name: name,
+        price: (raw['Price'] || '').toString().trim(),
+        marathi: (raw['Marathi'] || '').toString().trim(),
+        photo: fixImageLink(raw['Photo']),
+        isDuplicate: raw['_duplicate'] === true
+      };
+    }
+    
+    function updateDupSummary() {
+      const summary = document.getElementById('dupSummary');
+      if (!summary) return;
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      const filterBtn = document.getElementById('dupFilterBtn');
+      const cleanBtn = document.getElementById('dupCleanBtn');
+      if (dupCount === 0) {
+        summary.innerText = 'No duplicates found';
+        if (filterBtn) filterBtn.style.display = 'none';
+        if (cleanBtn) cleanBtn.style.display = 'none';
+      } else {
+        summary.innerText = `${dupCount} duplicate item(s) found`;
+        if (filterBtn) { filterBtn.style.display = ''; filterBtn.innerText = showDuplicatesOnly ? 'Show all items' : 'Show duplicates only'; }
+        if (cleanBtn) cleanBtn.style.display = '';
+      }
+    }
+
+    function toggleDuplicatesView() {
+      showDuplicatesOnly = !showDuplicatesOnly;
+      updateDupSummary();
+      displayItems();
+    }
+
+    async function cleanupDuplicates() {
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      if (dupCount === 0) { alert('No duplicates to clean up.'); return; }
+      if (!confirm(`This will merge ${dupCount} duplicate item(s) — keeping one row per item and filling in any missing price/photo/Marathi from the others — then delete the extra rows. Continue?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'dedupe', confirm: true })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Cleanup failed: ' + data.message); return; }
+        alert(`Merged ${data.merged} group(s), removed ${data.removed} extra row(s).`);
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — cleanup did not complete. Try again.');
+      }
+    }
+
+    async function checkCatalogHealth() {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'diagnose' })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Could not run diagnostics: ' + data.message); return; }
+        const c = data.counts;
+        alert(
+          `Catalog health report:\n\n` +
+          `• ${c.duplicateGroups} duplicate group(s)\n` +
+          `• ${c.doubledCategory} item(s) with a repeated category prefix\n` +
+          `• ${c.generalOrphans} item(s) with no category (missing ":" in the Sheet)\n` +
+          `• ${c.blankPrice} item(s) with no price\n\n` +
+          `Nothing was changed. Fix category-format issues directly in the Sheet's Name column, e.g. "Plumbing: Ball Valve".`
+        );
+      } catch (err) {
+        alert('Network error while checking catalog health.');
+      }
+    }
+
+    async function backgroundSync() {
+      const status = document.getElementById('syncStatus');
+      if (status) status.innerText = "🔄";
+      try {
+        const response = await fetch(API_URL);
+        const rawData = await response.json();
+        
+        items = rawData.map(normalizeRawItem).filter(Boolean);
+        itemsByRow = {};
+        uniqueCategories.clear();
+        uniqueCategories.add('All');
+
+        items.forEach(it => { 
+          it._marathiName = it.marathi || transliterateName(it.name);
+          itemsByRow[it.row] = it; 
+          uniqueCategories.add(it.category);
+        });
+
+        buildCategories();
+        displayItems();
+        updateDupSummary();
+        if (status) status.innerText = "🟢";
+      } catch (error) {
+        if (status) status.innerText = "🟡";
+        if (items.length === 0) {
+          uniqueCategories.clear();
+          uniqueCategories.add('All');
+          buildCategories();
+          document.getElementById('resultsList').innerHTML = `<div style="text-align:center; padding:30px; color:var(--ink-soft);">Couldn't load the catalog.<br><button onclick="backgroundSync()" style="margin-top:12px; background:var(--steel); color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Retry</button></div>`;
+        }
+      }
+    }
+
+    function buildCategories() {
+      let catHtml = [];
+      uniqueCategories.forEach(cat => {
+        let displayCat = currentLang === 'mr' ? transliterateName(cat) : cat;
+        if (cat === 'All') displayCat = currentLang === 'mr' ? 'सर्व' : 'All';
+        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${sanitizeHTML(cat)}')">${sanitizeHTML(displayCat)}</button>`);
+      });
+      document.getElementById('categoryBar').innerHTML = catHtml.join('');
+      
+      let adminHtml = [];
+      uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${sanitizeHTML(cat)}">${sanitizeHTML(cat)}</option>`); });
+      adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
+      document.getElementById('adminCategorySelect').innerHTML = adminHtml.join('');
+    }
+
+    function displayItems() {
+      const queryWords = document.getElementById('searchBar').value.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
+      const resultsList = document.getElementById('resultsList');
+      resultsList.className = isAdmin ? 'edit-mode' : '';
+
+      if (items.length === 0) {
+        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No catalog items found...</div>`;
+        return;
+      }
+
+      let html = [];
+      let shown = 0;
+      for (const item of items) {
+        if (currentCategory !== 'All' && currentCategory !== item.category) continue;
+        if (showDuplicatesOnly && !item.isDuplicate) continue;
+        const searchTarget = (item.name + ' ' + (item._marathiName || '') + ' ' + item.category).toLowerCase();
+        if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
+
+        shown++;
+        const displayName = currentLang === 'mr' ? item._marathiName : item.name;
+        const displayCat = currentLang === 'mr' ? transliterateName(item.category) : item.category;
+        const priceNum = parseFloat(item.price);
+        const priceDisplay = isNaN(priceNum) ? '—' : `₹${priceNum}`;
+        
+        let thumbHtml = item.photo 
+          ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="${sanitizeHTML(item.name)}" loading="lazy" onerror="handleImgError(this)">`
+          : ICON_CAMERA;
+
+        const dupTagHtml = item.isDuplicate ? `<span class="dup-tag">${ICON_WARNING}Duplicate</span>` : '';
+        const stripeColor = item.isDuplicate ? 'var(--danger)' : categoryColor(item.category);
+
+        html.push(`
+          <div class="item-card" style="--cat-color:${stripeColor}">
+            <div class="item-thumb-container">${thumbHtml}</div>
+            <div class="item-wrapper">
+              <div class="top-row">
+                <div class="item-info">
+                  <span class="item-name">${sanitizeHTML(displayName)}</span>
+                  <div class="item-meta">
+                    <span class="item-cat">${sanitizeHTML(displayCat)}</span>
+                    ${dupTagHtml}
+                  </div>
+                </div>
+                <div class="item-price">${priceDisplay}</div>
+              </div>
+              <div class="admin-actions">
+                <button class="action-btn btn-edit" onclick="openEditModal(${item.row})">${ICON_EDIT}Edit</button>
+                <button class="action-btn btn-del" onclick="deleteItem(${item.row})">${ICON_DELETE}Delete</button>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+      resultsList.innerHTML = shown === 0
+        ? `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No items match.</div>`
+        : html.join('');
+    }
+
+    function setCategory(cat) { 
+      currentCategory = cat; 
+      buildCategories(); 
+      displayItems(); 
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'mr' : 'en';
+      localStorage.setItem('raj_traders_lang', currentLang);
+      document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
+      buildCategories(); 
+      displayItems();
+    }
+
+    function toggleAdmin() {
+      if (!isAdmin) {
+        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; updateDupSummary(); displayItems(); }
+        else alert("Incorrect PIN");
+      } else {
+        isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; showDuplicatesOnly = false; displayItems();
+      }
+    }
+
+    function handleAdminCategoryChange() {
+      const select = document.getElementById('adminCategorySelect');
+      document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
+    }
+
+    function openEditModal(row) {
+      const item = itemsByRow[row];
+      if (!item) return;
+      document.getElementById('editRow').value = row;
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editPrice').value = item.price;
+      document.getElementById('editModal').style.display = 'flex';
+      document.getElementById('saveEditBtn').innerText = "Save Changes";
+    }
+
+    function closeEditModal() { 
+      document.getElementById('editModal').style.display = 'none'; 
+    }
+
+    async function saveEdit() {
+      const row = parseInt(document.getElementById('editRow').value, 10);
+      const item = itemsByRow[row];
+      if (!item) return;
+
+      const newName = document.getElementById('editName').value.trim();
+      const newPrice = document.getElementById('editPrice').value.trim();
+      const btn = document.getElementById('saveEditBtn');
+      const isRename = newName.toLowerCase() !== item.name.toLowerCase();
+
+      if (isRename) {
+        const collision = items.find(i => i.row !== item.row && i.category.toLowerCase() === item.category.toLowerCase() && i.name.toLowerCase() === newName.toLowerCase());
+        if (collision) {
+          const goAhead = confirm(`Another item is already named "${newName}" under "${item.category}" (₹${collision.price || '—'}). Renaming will create a duplicate. Continue anyway?`);
+          if (!goAhead) return;
+        }
+      }
+
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+        let data;
+        if (isRename) {
+          const newFull = item.category + ': ' + newName;
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'rename', row: item.row, oldName: item.rawName, newName: newFull })
+          });
+          data = await res.json();
+        } else {
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'upsert', category: item.category, name: item.name, price: newPrice })
+          });
+          data = await res.json();
+        }
+        if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+          btn.disabled = false;
+          btn.innerText = "Save Changes";
+          return;
+        }
+        closeEditModal();
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — nothing was saved. Try again.');
+        btn.disabled = false;
+        btn.innerText = "Save Changes";
+      }
+    }
+
+    async function saveNewItem() {
+      const select = document.getElementById('adminCategorySelect');
+      let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
+      const name = document.getElementById('itemName').value.trim();
+      const price = document.getElementById('itemPrice').value.trim();
+
+      if (!name || !price || !cat) { alert("Please enter category, item name and price"); return; }
+
+      const nameLower = name.toLowerCase();
+      const sameNameElsewhere = items.find(i => i.name.toLowerCase() === nameLower && i.category.toLowerCase() !== cat.toLowerCase());
+      if (sameNameElsewhere) {
+        const goAhead = confirm(`"${name}" already exists under "${sameNameElsewhere.category}" (₹${sameNameElsewhere.price || '—'}).\n\nAdd this as a separate item under "${cat}" anyway? Tap Cancel to stop — you can edit the existing one instead.`);
+        if (!goAhead) return;
+      }
+
+      const btn = document.getElementById('saveNewBtn');
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price })
+        });
+        const data = await res.json();
+        if (data.status === 'ambiguous') {
+          alert(data.message);
+        } else if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+        } else {
+          document.getElementById('itemName').value = '';
+          document.getElementById('itemPrice').value = '';
+          document.getElementById('newCategoryInput').value = '';
+          await backgroundSync();
+        }
+      } catch (err) {
+        alert('Network error — item was not saved. Try again.');
+      }
+      btn.disabled = false;
+      btn.innerText = "Save to Catalog";
+    }
+
+    async function deleteItem(row) {
+      const item = itemsByRow[row];
+      if (!item) return;
+      if (!confirm(`Delete "${item.name}" from catalog?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'delete', row: row })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Delete failed: ' + data.message); return; }
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — item was not deleted. Try again.');
+      }
+    }
+
+    window.onload = () => {
+      document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
+      backgroundSync();
+    };
+  </script>
+</body>
+</html>
