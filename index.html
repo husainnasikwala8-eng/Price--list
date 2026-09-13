@@ -170,8 +170,7 @@
   </style>
 </head>
 <body>
-
-  <div class="header">
+   <div class="header">
     <h1>Raj Traders Catalog</h1>
     <div class="header-actions">
       <span id="syncStatus" style="font-size:0.78rem; margin-right:2px;">⚪</span>
@@ -424,27 +423,65 @@
       }
     }
 
-    async function backgroundSync() {
+    const CACHE_KEY = 'raj_traders_cache_v1';
+    const POLL_INTERVAL_MS = 15000;
+
+    function applyRawData(rawData) {
+      items = rawData.map(normalizeRawItem).filter(Boolean);
+      itemsByRow = {};
+      uniqueCategories.clear();
+      uniqueCategories.add('All');
+
+      items.forEach(it => {
+        it._marathiName = it.marathi || transliterateName(it.name);
+        itemsByRow[it.row] = it;
+        uniqueCategories.add(it.category);
+      });
+
+      buildCategories();
+      displayItems();
+      updateDupSummary();
+    }
+
+    function loadFromCache() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return;
+        const rawData = JSON.parse(cached);
+        if (Array.isArray(rawData) && rawData.length > 0) applyRawData(rawData);
+      } catch (err) { /* ignore unreadable cache, fall through to network */ }
+    }
+
+    function saveToCache(rawData) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(rawData)); } catch (err) { /* storage full/unavailable, non-fatal */ }
+    }
+
+    function isEditModalOpen() {
+      const modal = document.getElementById('editModal');
+      return !!modal && modal.style.display === 'flex';
+    }
+
+    async function backgroundSync(isRetry) {
       const status = document.getElementById('syncStatus');
       if (status) status.innerText = "🔄";
       try {
-        const response = await fetch(API_URL);
+        const bustUrl = API_URL + (API_URL.includes('?') ? '&' : '?') + 'ts=' + Date.now();
+        const response = await fetch(bustUrl, { cache: 'no-store' });
         const rawData = await response.json();
-        
-        items = rawData.map(normalizeRawItem).filter(Boolean);
-        itemsByRow = {};
-        uniqueCategories.clear();
-        uniqueCategories.add('All');
 
-        items.forEach(it => { 
-          it._marathiName = it.marathi || transliterateName(it.name);
-          itemsByRow[it.row] = it; 
-          uniqueCategories.add(it.category);
-        });
+        // If a fetch lands mid-write on the sheet, it can briefly read a
+        // partial row set. Rather than flash that broken state to whoever
+        // is looking at their phone, keep showing the last good data and
+        // quietly check again shortly.
+        const looksTornMidWrite = items.length > 3 && Array.isArray(rawData) && rawData.length < items.length * 0.5;
+        if (looksTornMidWrite && !isRetry) {
+          if (status) status.innerText = "🟢";
+          setTimeout(() => backgroundSync(true), 2000);
+          return;
+        }
 
-        buildCategories();
-        displayItems();
-        updateDupSummary();
+        saveToCache(rawData);
+        applyRawData(rawData);
         if (status) status.innerText = "🟢";
       } catch (error) {
         if (status) status.innerText = "🟡";
@@ -687,7 +724,17 @@
     window.onload = () => {
       document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
       document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
-      backgroundSync();
+
+      loadFromCache();   // instant paint from last-known data, even on a slow connection
+      backgroundSync();  // then confirm/refresh from the network
+
+      setInterval(() => {
+        if (!isEditModalOpen() && document.visibilityState === 'visible') backgroundSync();
+      }, POLL_INTERVAL_MS);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') backgroundSync();
+      });
     };
   </script>
 </body>
