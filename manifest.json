@@ -1,21 +1,20 @@
 {
-  "name": "Raj Traders",
+  "name": "Raj Traders Catalog",
   "short_name": "Raj Traders",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#f4f4f9",
-  "theme_color": "#1a5fb4",
+  "background_color": "#EDF0EF",
+  "theme_color": "#37454D",
   "icons": [
     {
-      "src": "icon.jpg",
+      "src": "image.png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png"
     },
     {
-      "src": "icon.jpg",
+      "src": "image.png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
-
