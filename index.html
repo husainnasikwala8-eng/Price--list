@@ -732,7 +732,14 @@
       setInterval(() => {
         if (!isEditModalOpen() && document.visibilityState === 'visible') backgroundSync();
       }, POLL_INTERVAL_MS);
-
+    
+      // Register Service Worker for PWA Installation
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+      
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') backgroundSync();
       });
