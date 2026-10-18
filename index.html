@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Raj Traders Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Oswald:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="image.png">
+  <link rel="apple-touch-icon" href="image.png">
+<style>
+    :root {
+      --bg: #EDF0EF;
+      --surface: #FFFFFF;
+      --ink: #22282C;
+      --ink-soft: #5C6569;
+      --steel: #37454D;
+      --accent: #E8590C;
+      --accent-soft: #FCE7DA;
+      --price: #3F6B3F;
+      --border: #DBDFDC;
+      --danger: #B23A2E;
+      --danger-soft: #F7E2DF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      padding-bottom: 70px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .header {
+      background: var(--steel);
+      color: #fff;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 3px solid var(--accent);
+    }
+    .header h1 {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      font-size: 1.2rem;
+      letter-spacing: 0.3px;
+    }
+    .header-actions { display: flex; align-items: center; gap: 8px; }
+    .icon-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      width: 36px; height: 36px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+    }
+    .icon-btn svg { width: 18px; height: 18px; }
+    .lang-btn {
+      background: rgba(255,255,255,0.14);
+      border: none;
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .search-container { padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+    .search-box { position: relative; }
+    .search-box svg {
+      position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--ink-soft); pointer-events: none;
+    }
+    .search-box input {
+      width: 100%; padding: 11px 12px 11px 38px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 1rem; background: var(--bg); color: var(--ink);
+    }
+
+    .category-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 10px 16px; background: var(--surface); border-bottom: 1px solid var(--border); scrollbar-width: none; }
+    .category-scroll::-webkit-scrollbar { display: none; }
+    .cat-btn {
+      flex-shrink: 0;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--ink-soft);
+      padding: 7px 14px;
+      border-radius: 5px;
+      font-size: 0.88rem;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+    }
+    .cat-btn.active {
+      color: var(--ink);
+      border-color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600;
+      background: var(--accent-soft);
+    }
+
+    .item-list { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+    .item-card {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--cat-color, var(--steel));
+      display: flex; gap: 12px; align-items: center;
+    }
+
+    .item-thumb-container { width: 56px; height: 56px; flex-shrink: 0; border-radius: 5px; overflow: hidden; background: var(--bg); display: flex; justify-content: center; align-items: center; border: 1px solid var(--border); }
+    .item-thumb { width: 100%; height: 100%; object-fit: cover; }
+    .item-thumb-placeholder { width: 22px; height: 22px; color: #b7bcb9; }
+
+    .item-wrapper { flex-grow: 1; min-width: 0; }
+    .top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .item-info { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .item-name { font-weight: 600; font-size: 1rem; line-height: 1.25; }
+    .item-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .item-cat { font-size: 0.75rem; color: var(--ink-soft); background: var(--bg); padding: 2px 7px; border-radius: 4px; }
+    .dup-tag { font-size: 0.72rem; color: var(--danger); background: var(--danger-soft); padding: 2px 7px; border-radius: 4px; display: inline-flex; align-items: center; gap: 3px; }
+    .dup-tag svg { width: 11px; height: 11px; }
+    .item-price {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 500;
+      color: var(--price);
+      background: var(--accent-soft);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 1.05rem;
+      white-space: nowrap;
+    }
+
+    .admin-panel { display: none; background: var(--surface); padding: 16px; margin: 14px; border-radius: 8px; border: 1px solid var(--border); border-top: 3px solid var(--accent); }
+    .admin-panel h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 1rem; color: var(--steel); font-family: 'Oswald', sans-serif; font-weight: 500; }
+    .admin-panel h3 svg { width: 18px; height: 18px; }
+    .input-group { margin-bottom: 10px; }
+    .input-group input, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 5px; font-size: 1rem; background: var(--bg); }
+    .btn-save { width: 100%; background: var(--steel); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+
+    .dup-panel { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 16px; }
+    .dup-summary { font-size: 0.88rem; color: var(--ink-soft); margin-bottom: 10px; }
+    .dup-actions { display: flex; gap: 8px; margin-bottom: 8px; }
+    .dup-btn { flex: 1; background: var(--surface); border: 1px solid var(--border); color: var(--ink); padding: 9px 6px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .dup-btn-danger { background: var(--danger-soft); border-color: var(--danger); color: var(--danger); }
+    .health-btn { width: 100%; background: var(--surface); border: 1px solid var(--border); color: var(--ink-soft); padding: 9px; border-radius: 5px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .health-btn svg { width: 14px; height: 14px; }
+
+    .admin-actions { display: none; margin-top: 10px; gap: 8px; border-top: 1px dashed var(--border); padding-top: 10px; }
+    .edit-mode .admin-actions { display: flex; }
+    .action-btn { flex: 1; padding: 8px; border-radius: 5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 0.85rem; border: 1px solid; }
+    .action-btn svg { width: 14px; height: 14px; }
+    .btn-edit { background: #FDF3E3; color: #92660D; border-color: #E9C878; }
+    .btn-del { background: var(--danger-soft); color: var(--danger); border-color: #E3A99E; }
+
+    .modal { display: none; position: fixed; inset: 0; background: rgba(20,24,26,0.55); justify-content: center; align-items: center; z-index: 1000; }
+    .modal-content { background: var(--surface); padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; border-top: 3px solid var(--accent); }
+    .modal-content h3 { margin-bottom: 15px; font-family: 'Oswald', sans-serif; font-weight: 500; color: var(--steel); }
+    .modal-content label { font-size: 0.8rem; color: var(--ink-soft); }
+    .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-cancel { flex: 1; background: var(--bg); border: 1px solid var(--border); padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+    .btn-confirm { flex: 1; background: var(--steel); color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 600; cursor: pointer; }
+  
+[data-theme="dark"]{--bg:#121618;--surface:#1D2326;--ink:#E7ECEE;--ink-soft:#9BA6AB;--steel:#2A353B;--accent:#F0732B;--accent-soft:#3B2718;--price:#86C986;--border:#303A3F;--danger:#E8776D;--danger-soft:#3C201D}
+[data-theme="dark"] .btn-edit{background:#3A2F17;color:#E9C878;border-color:#6B5522}
+[data-theme="dark"] .btn-del{border-color:#7A3A33}
+input,select,textarea{color:var(--ink)}
+.btn-cancel{color:var(--ink)}
+.price-col{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}
+.qty-ctl{display:flex;align-items:center;gap:6px}
+.add-btn{background:var(--accent);color:#fff;border:none;border-radius:5px;padding:7px 14px;font-size:.82rem;font-weight:600;cursor:pointer}
+.q-btn{width:32px;height:32px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:1.15rem;font-weight:600;cursor:pointer;line-height:1}
+.q-num{min-width:24px;text-align:center;font-weight:600}
+#cartBar{display:none;position:fixed;left:14px;right:14px;bottom:14px;z-index:150;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:14px;font-size:1rem;font-weight:600;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+#loginGate{position:fixed;inset:0;z-index:2000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+html.session #loginGate{display:none}
+.gate-card{width:100%;max-width:340px}
+.gate-card h2{font-family:'Oswald',sans-serif;font-weight:500;color:var(--steel);margin-bottom:8px}
+.gate-card p{color:var(--ink-soft);font-size:.92rem;margin-bottom:18px;line-height:1.4}
+.google-btn{width:100%;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-bottom:3px solid var(--accent);border-radius:6px;padding:13px;font-size:1rem;font-weight:600;cursor:pointer}
+.gate-err{color:var(--danger);font-size:.85rem;margin-top:12px;line-height:1.4}
+.modal-content{max-height:90vh;overflow-y:auto}
+.field{margin-bottom:10px}
+.field label{display:block;margin-bottom:4px}
+.field input,.field textarea{width:100%;padding:10px;border:1px solid var(--border);border-radius:5px;font-size:1rem;background:var(--bg);font-family:inherit}
+.cart-line{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.stack{flex-direction:column}
+.header h1{font-size:1.05rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.header-actions{gap:6px}.lang-btn{padding:8px 9px}
+.btn-photo{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+#syncStatus.live{padding:3px 9px;border-radius:12px;font-size:.72rem;font-weight:600;color:#fff;margin-right:0!important}
+#syncStatus.ok{background:#3F7A3F}#syncStatus.busy{background:#8A6D1D}#syncStatus.off{background:#B23A2E}
+#syncStatus.ok::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#A6F2A6;margin-right:5px;animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.3}}
+@media(prefers-reduced-motion:reduce){#syncStatus.ok::before{animation:none}}
+#accountBtn{font-weight:600;font-family:'Oswald',sans-serif}
+</style>
+<script>try{var t=localStorage.getItem('raj_traders_theme');if(!t)t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.setAttribute('data-theme',t);var h=JSON.parse(localStorage.getItem('raj_traders_session')||'null');if(h&&h.user)document.documentElement.classList.add('session')}catch(e){}</script>
+</head>
+<body>
+   <div class="header">
+    <h1>Raj Traders Catalog</h1>
+    <div class="header-actions">
+      <span id="syncStatus" style="font-size:0.78rem; margin-right:2px;">⚪</span>
+      <button class="icon-btn" id="accountBtn" onclick="openAccount()" aria-label="Account">?</button>
+      <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">मराठी</button>
+      <button class="icon-btn" onclick="toggleAdmin()" aria-label="Admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="search-container">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchBar" placeholder="Search catalog..." onkeyup="displayItems()">
+    </div>
+  </div>
+
+  <div class="category-scroll" id="categoryBar"></div>
+
+  <div class="admin-panel" id="adminPanel">
+    <div class="dup-panel">
+      <div class="dup-summary" id="dupSummary">Checking for duplicates…</div>
+      <div class="dup-actions">
+        <button class="dup-btn" id="dupFilterBtn" onclick="toggleDuplicatesView()">Show duplicates only</button>
+        <button class="dup-btn dup-btn-danger" id="dupCleanBtn" onclick="cleanupDuplicates()">Clean up duplicates</button>
+      </div>
+      <button class="health-btn" onclick="checkCatalogHealth()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Check catalog health
+      </button>
+    </div>
+    <h3>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.6 5.6L2 19l3 3 7.1-7.1a4 4 0 0 0 5.6-5.6l-2.5 2.5-2-2 2.5-2.5z"/></svg>
+      Add New Item
+    </h3>
+    <div class="input-group">
+      <select id="adminCategorySelect" onchange="handleAdminCategoryChange()"></select>
+    </div>
+    <div class="input-group" id="newCategoryWrapper" style="display:none;">
+      <input type="text" id="newCategoryInput" placeholder="Enter New Category Name">
+    </div>
+    <div class="input-group">
+      <input type="text" id="itemName" placeholder="Item Name (English)">
+    </div>
+    <div class="input-group">
+      <input type="number" id="itemPrice" placeholder="Price (₹)">
+    </div>
+    <button class="btn-save" id="saveNewBtn" onclick="saveNewItem()">Save to Catalog</button>
+  </div>
+
+  <div class="item-list" id="resultsList"></div>
+
+  <div class="modal" id="editModal">
+    <div class="modal-content">
+      <h3>Edit Item</h3>
+      <input type="hidden" id="editRow">
+      <div class="input-group">
+        <label>Item Name</label>
+        <input type="text" id="editName">
+      </div>
+      <div class="input-group">
+        <label>Price (₹)</label>
+        <input type="number" id="editPrice">
+      </div>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+        <button class="btn-confirm" id="saveEditBtn" onclick="saveEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div> 
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbwvQzcRgg10_EWOaJD49VQisYhpH9fG5jhqdAN2hPPZPFMDBMV1u9NH12W1kjo9PQM0/exec";
+    const ADMIN_PIN = "2241"; 
+
+    const ICON_CAMERA = `<svg class="item-thumb-placeholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7l1.5-3h5L16 7"/><circle cx="12" cy="13.5" r="3.2"/></svg>`;
+    const ICON_EDIT = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+    const ICON_DELETE = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`;
+    const ICON_WARNING = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17.5" r="0.5" fill="currentColor"/></svg>`;
+    const CATEGORY_COLORS = ['#E8590C', '#3C4A52', '#4C7A3D', '#8A5A2B', '#5B7C99', '#946846'];
+
+    function categoryColor(cat) {
+      let hash = 0;
+      for (let i = 0; i < cat.length; i++) hash = (hash * 31 + cat.charCodeAt(i)) >>> 0;
+      return CATEGORY_COLORS[hash % CATEGORY_COLORS.length];
+    }
+
+    function handleImgError(imgEl) {
+      imgEl.onerror = null;
+      imgEl.parentElement.innerHTML = ICON_CAMERA;
+    }
+
+    let items = [];
+    let itemsByRow = {};
+    let currentCategory = 'All';
+    let uniqueCategories = new Set();
+    let isAdmin = false;
+    let currentLang = localStorage.getItem('raj_traders_lang') || 'en';
+    let showDuplicatesOnly = false;
+
+    function sanitizeHTML(str) {
+      if (str === null || str === undefined) return '';
+      return String(str).replace(/[&<>'"]/g, match => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[match] || match));
+    }
+
+    const MARATHI_DICT = {
+      "plumbing": "प्लंबिंग", "paints": "पेंट", "paint": "पेंट", "fasteners": "फास्टनर्स", "hardware": "हार्डवेअर", 
+      "construction": "बांधकाम", "brass": "ब्रास", "iron": "लोखंड", "steel": "स्टील", "tap": "टॅप", 
+      "bibcock": "बिबकॉक", "valve": "व्हॉल्व्ह", "ball": "बॉल", "pipe": "पाईप", "hose": "होज", "clip": "क्लिप", 
+      "joint": "जॉइंट", "wrench": "पाना", "brush": "ब्रश", "roller": "रोलर", "hammer": "हातोडी", "bolt": "बोल्ट", 
+      "nut": "नट", "screw": "स्क्रू", "nail": "खिळा", "wire": "वायर", "mesh": "जाळी", "hinge": "बिजागरी", 
+      "lock": "कुलूप", "handle": "हँडल", "white": "पांढरा", "black": "काळा", "red": "लाल", "blue": "निळा", "yellow": "पिवळा"
+    };
+
+    function isPureSizeToken(raw) {
+      if (/\d/.test(raw)) return true;
+      const units = ['mm','cm','m','inch','ft','kg','g','lit','ml','no','w','watt'];
+      return units.includes(raw.toLowerCase().replace(/[^a-z]/g, ''));
+    }
+
+    function transliterateWord(rawWord) {
+      const w = rawWord.toLowerCase();
+      if (MARATHI_DICT[w]) return MARATHI_DICT[w];
+      const consonants = [['kh','ख'],['gh','घ'],['chh','छ'],['ch','च'],['jh','झ'],['th','थ'],['dh','ध'],['ph','फ'],['bh','भ'],['sh','श'],['k','क'],['g','ग'],['j','ज'],['t','ट'],['d','ड'],['n','न'],['p','प'],['b','ब'],['m','म'],['y','य'],['r','र'],['l','ल'],['v','व'],['w','व'],['s','स'],['h','ह'],['f','फ'],['z','झ'],['c','क']];
+      const vowelsIndep = [['aa','आ'],['ee','ई'],['oo','ऊ'],['ai','ऐ'],['au','औ'],['a','अ'],['i','इ'],['u','उ'],['e','ए'],['o','ओ']];
+      const vowelsMatra = [['aa','ा'],['ee','ी'],['oo','ू'],['ai','ै'],['au','ौ'],['a',''],['i','ि'],['u','ु'],['e','े'],['o','ो']];
+      let result = '', i = 0;
+      while (i < w.length) {
+        let matchedCons = null;
+        for (const pair of consonants) if (w.startsWith(pair[0], i)) { matchedCons = pair; break; }
+        if (matchedCons) {
+          i += matchedCons[0].length;
+          let matchedVowel = null;
+          for (const pair of vowelsMatra) if (pair[0] && w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedCons[1] + matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += matchedCons[1]; }
+        } else {
+          let matchedVowel = null;
+          for (const pair of vowelsIndep) if (w.startsWith(pair[0], i)) { matchedVowel = pair; break; }
+          if (matchedVowel) { result += matchedVowel[1]; i += matchedVowel[0].length; }
+          else { result += w[i]; i += 1; }
+        }
+      }
+      return result.trim() === '' ? rawWord : result; 
+    }
+
+    function transliterateName(text) {
+      if (!text) return "";
+      const lowerFull = text.toLowerCase().trim();
+      if (MARATHI_DICT[lowerFull]) return MARATHI_DICT[lowerFull];
+      return text.split(/\s+/).map(tok => {
+        if (isPureSizeToken(tok)) return tok;
+        const match = tok.match(/^([^a-zA-Z0-9]*)([a-zA-Z0-9.-]+)([^a-zA-Z0-9]*)$/);
+        let prefix = "", core = tok, suffix = "";
+        if (match) { prefix = match[1]; core = match[2]; suffix = match[3]; }
+        let cleanCore = core.toLowerCase().replace(/[^a-z]/g, '');
+        if (!cleanCore) return tok; 
+        return prefix + (MARATHI_DICT[cleanCore] || transliterateWord(cleanCore)) + suffix;
+      }).join(' ');
+    }
+
+    function fixImageLink(url) {
+      if (!url || typeof url !== 'string') return '';
+      let cleanUrl = url.trim();
+      const driveMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9-_]+)/) || cleanUrl.match(/id=([a-zA-Z0-9-_]+)/);
+      if (cleanUrl.includes('drive.google.com') && driveMatch) {
+        return `https://lh3.googleusercontent.com/d/${driveMatch[1]}=s240`;
+      }
+      return cleanUrl;
+    }
+
+    function normalizeRawItem(raw) {
+      if (typeof raw !== 'object' || raw === null) return null;
+      const name = (raw['Item Name'] || '').toString().trim();
+      if (!name) return null;
+      let category = (raw['Category'] || raw['category'] || '').toString().trim();
+      if (!category) category = 'General';
+      category = category.charAt(0).toUpperCase() + category.slice(1);
+      return {
+        row: raw['_row'],
+        rawName: (raw['_raw'] || name).toString(),
+        category: category,
+        name: name,
+        price: (raw['Price'] || '').toString().trim(),
+        marathi: (raw['Marathi'] || '').toString().trim(),
+        photo: fixImageLink(raw['Photo']),
+        isDuplicate: raw['_duplicate'] === true
+      };
+    }
+    
+    function updateDupSummary() {
+      const summary = document.getElementById('dupSummary');
+      if (!summary) return;
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      const filterBtn = document.getElementById('dupFilterBtn');
+      const cleanBtn = document.getElementById('dupCleanBtn');
+      if (dupCount === 0) {
+        summary.innerText = 'No duplicates found';
+        if (filterBtn) filterBtn.style.display = 'none';
+        if (cleanBtn) cleanBtn.style.display = 'none';
+      } else {
+        summary.innerText = `${dupCount} duplicate item(s) found`;
+        if (filterBtn) { filterBtn.style.display = ''; filterBtn.innerText = showDuplicatesOnly ? 'Show all items' : 'Show duplicates only'; }
+        if (cleanBtn) cleanBtn.style.display = '';
+      }
+    }
+
+    function toggleDuplicatesView() {
+      showDuplicatesOnly = !showDuplicatesOnly;
+      updateDupSummary();
+      displayItems();
+    }
+
+    async function cleanupDuplicates() {
+      const dupCount = items.filter(i => i.isDuplicate).length;
+      if (dupCount === 0) { alert('No duplicates to clean up.'); return; }
+      if (!confirm(`This will merge ${dupCount} duplicate item(s) — keeping one row per item and filling in any missing price/photo/Marathi from the others — then delete the extra rows. Continue?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'dedupe', confirm: true })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Cleanup failed: ' + data.message); return; }
+        alert(`Merged ${data.merged} group(s), removed ${data.removed} extra row(s).`);
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — cleanup did not complete. Try again.');
+      }
+    }
+
+    async function checkCatalogHealth() {
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'diagnose' })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Could not run diagnostics: ' + data.message); return; }
+        const c = data.counts;
+        alert(
+          `Catalog health report:\n\n` +
+          `• ${c.duplicateGroups} duplicate group(s)\n` +
+          `• ${c.doubledCategory} item(s) with a repeated category prefix\n` +
+          `• ${c.generalOrphans} item(s) with no category (missing ":" in the Sheet)\n` +
+          `• ${c.blankPrice} item(s) with no price\n\n` +
+          `Nothing was changed. Fix category-format issues directly in the Sheet's Name column, e.g. "Plumbing: Ball Valve".`
+        );
+      } catch (err) {
+        alert('Network error while checking catalog health.');
+      }
+    }
+
+    const CACHE_KEY = 'raj_traders_cache_v1';
+    const POLL_INTERVAL_MS = 15000;
+
+    function applyRawData(rawData) {
+      items = rawData.map(normalizeRawItem).filter(Boolean);
+      itemsByRow = {};
+      uniqueCategories.clear();
+      uniqueCategories.add('All');
+
+      items.forEach(it => {
+        it._marathiName = it.marathi || transliterateName(it.name);
+        itemsByRow[it.row] = it;
+        uniqueCategories.add(it.category);
+      });
+
+      buildCategories();
+      displayItems();
+      updateDupSummary();
+    }
+
+    function loadFromCache() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return;
+        const rawData = JSON.parse(cached);
+        if (Array.isArray(rawData) && rawData.length > 0) applyRawData(rawData);
+      } catch (err) { /* ignore unreadable cache, fall through to network */ }
+    }
+
+    function saveToCache(rawData) {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(rawData)); } catch (err) { /* storage full/unavailable, non-fatal */ }
+    }
+
+    function isEditModalOpen() {
+      const modal = document.getElementById('editModal');
+      return !!modal && modal.style.display === 'flex';
+    }
+
+    async function backgroundSync(isRetry) {
+      const status = document.getElementById('syncStatus');
+      if (status) status.innerText = "🔄";
+      try {
+        const bustUrl = API_URL + (API_URL.includes('?') ? '&' : '?') + 'ts=' + Date.now();
+        const response = await fetch(bustUrl, { cache: 'no-store' });
+        const rawData = await response.json();
+
+        // If a fetch lands mid-write on the sheet, it can briefly read a
+        // partial row set. Rather than flash that broken state to whoever
+        // is looking at their phone, keep showing the last good data and
+        // quietly check again shortly.
+        const looksTornMidWrite = items.length > 3 && Array.isArray(rawData) && rawData.length < items.length * 0.5;
+        if (looksTornMidWrite && !isRetry) {
+          if (status) status.innerText = "🟢";
+          setTimeout(() => backgroundSync(true), 2000);
+          return;
+        }
+
+        saveToCache(rawData);
+        applyRawData(rawData);
+        if (status) status.innerText = "🟢";
+      } catch (error) {
+        if (status) status.innerText = "🟡";
+        if (items.length === 0) {
+          uniqueCategories.clear();
+          uniqueCategories.add('All');
+          buildCategories();
+          document.getElementById('resultsList').innerHTML = `<div style="text-align:center; padding:30px; color:var(--ink-soft);">Couldn't load the catalog.<br><button onclick="backgroundSync()" style="margin-top:12px; background:var(--steel); color:#fff; border:none; padding:10px 18px; border-radius:6px; font-weight:600; cursor:pointer;">Retry</button></div>`;
+        }
+      }
+    }
+
+    function buildCategories() {
+      let catHtml = [];
+      uniqueCategories.forEach(cat => {
+        let displayCat = currentLang === 'mr' ? transliterateName(cat) : cat;
+        if (cat === 'All') displayCat = currentLang === 'mr' ? 'सर्व' : 'All';
+        catHtml.push(`<button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="setCategory('${sanitizeHTML(cat)}')">${sanitizeHTML(displayCat)}</button>`);
+      });
+      document.getElementById('categoryBar').innerHTML = catHtml.join('');
+      
+      let adminHtml = [];
+      uniqueCategories.forEach(cat => { if (cat !== 'All') adminHtml.push(`<option value="${sanitizeHTML(cat)}">${sanitizeHTML(cat)}</option>`); });
+      adminHtml.push(`<option value="__NEW__">+ Add New Category...</option>`);
+      document.getElementById('adminCategorySelect').innerHTML = adminHtml.join('');
+    }
+
+    function displayItems() {
+      const queryWords = document.getElementById('searchBar').value.trim().toLowerCase().split(/\s+/).filter(w => w.length > 0);
+      const resultsList = document.getElementById('resultsList');
+      resultsList.className = isAdmin ? 'edit-mode' : '';
+
+      if (items.length === 0) {
+        resultsList.innerHTML = `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No catalog items found...</div>`;
+        return;
+      }
+
+      let html = [];
+      let shown = 0;
+      for (const item of items) {
+        if (currentCategory !== 'All' && currentCategory !== item.category) continue;
+        if (currentBrand !== 'All' && currentBrand !== item.brand) continue;
+        if (showDuplicatesOnly && !item.isDuplicate) continue;
+        const searchTarget = (item.name + ' ' + (item._marathiName || '') + ' ' + item.category).toLowerCase();
+        if (queryWords.length > 0 && !queryWords.every(w => searchTarget.includes(w))) continue;
+
+        shown++;
+        const displayName = currentLang === 'mr' ? item._marathiName : item.name;
+        const displayCat = currentLang === 'mr' ? transliterateName(item.category) : item.category;
+        const priceNum = parseFloat(item.price);
+        const priceDisplay = isNaN(priceNum) ? '—' : `₹${priceNum}`;
+        
+        let thumbHtml = item.photo 
+          ? `<img class="item-thumb" src="${sanitizeHTML(item.photo)}" alt="${sanitizeHTML(item.name)}" loading="lazy" decoding="async" onerror="handleImgError(this)">`
+          : ICON_CAMERA;
+
+        const dupTagHtml = item.isDuplicate ? `<span class="dup-tag">${ICON_WARNING}Duplicate</span>` : '';
+        const stripeColor = item.isDuplicate ? 'var(--danger)' : categoryColor(item.category);
+
+        html.push(`
+          <div class="item-card" style="--cat-color:${stripeColor}">
+            <div class="item-thumb-container">${thumbHtml}</div>
+            <div class="item-wrapper">
+              <div class="top-row">
+                <div class="item-info">
+                  <span class="item-name">${sanitizeHTML(displayName)}</span>
+                  <div class="item-meta">
+                    <span class="item-cat">${sanitizeHTML(displayCat)}</span>${item.brand?`<span class="item-cat">${sanitizeHTML(item.brand)}</span>`:''}
+                    ${dupTagHtml}
+                  </div>
+                </div>
+                <div class="price-col"><div class="item-price">${priceDisplay}</div>${ctlHtml(item)}</div>
+              </div>
+              <div class="admin-actions">
+                <button class="action-btn btn-edit" onclick="openEditModal(${item.row})">${ICON_EDIT}Edit</button>
+                <button class="action-btn btn-del" onclick="deleteItem(${item.row})">${ICON_DELETE}Delete</button>
+                <button class="action-btn btn-photo" onclick="openPhoto(${item.row})">${ICON_CAMERA.replace('item-thumb-placeholder','')}Photo</button>
+              </div>
+            </div>
+          </div>
+        `);
+      }
+      resultsList.innerHTML = shown === 0
+        ? `<div style="text-align:center; padding: 30px; color: var(--ink-soft);">No items match.</div>`
+        : html.slice(0,renderLimit).join('')+(html.length>renderLimit?`<button class="btn-cancel" style="width:100%;margin-top:4px" onclick="renderLimit+=60;displayItems()">${T('Show more','आणखी दाखवा')} (${html.length-renderLimit})</button>`:'');
+    }
+
+    function setCategory(cat) { 
+      currentCategory = cat; 
+      buildCategories(); 
+      displayItems(); 
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'en' ? 'mr' : 'en';
+      localStorage.setItem('raj_traders_lang', currentLang);
+      document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
+      buildCategories(); 
+      displayItems();
+    }
+
+    function toggleAdmin() {
+      if (!isAdmin) {
+        if (prompt("Enter Admin PIN to Edit Catalog:") === ADMIN_PIN) { isAdmin = true; document.getElementById('adminPanel').style.display = 'block'; updateDupSummary(); displayItems(); }
+        else alert("Incorrect PIN");
+      } else {
+        isAdmin = false; document.getElementById('adminPanel').style.display = 'none'; showDuplicatesOnly = false; displayItems();
+      }
+    }
+
+    function handleAdminCategoryChange() {
+      const select = document.getElementById('adminCategorySelect');
+      document.getElementById('newCategoryWrapper').style.display = select.value === '__NEW__' ? 'block' : 'none';
+    }
+
+    function openEditModal(row) {
+      const item = itemsByRow[row];
+      if (!item) return;
+      document.getElementById('editRow').value = row;
+      document.getElementById('editName').value = item.name;
+      document.getElementById('editPrice').value = item.price;
+      document.getElementById('editModal').style.display = 'flex';
+      document.getElementById('saveEditBtn').innerText = "Save Changes";
+    }
+
+    function closeEditModal() { 
+      document.getElementById('editModal').style.display = 'none'; 
+    }
+
+    async function saveEdit() {
+      const row = parseInt(document.getElementById('editRow').value, 10);
+      const item = itemsByRow[row];
+      if (!item) return;
+
+      const newName = document.getElementById('editName').value.trim();
+      const newPrice = document.getElementById('editPrice').value.trim();
+      const btn = document.getElementById('saveEditBtn');
+      const isRename = newName.toLowerCase() !== item.name.toLowerCase();
+
+      if (isRename) {
+        const collision = items.find(i => i.row !== item.row && i.category.toLowerCase() === item.category.toLowerCase() && i.name.toLowerCase() === newName.toLowerCase());
+        if (collision) {
+          const goAhead = confirm(`Another item is already named "${newName}" under "${item.category}" (₹${collision.price || '—'}). Renaming will create a duplicate. Continue anyway?`);
+          if (!goAhead) return;
+        }
+      }
+
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+        let data;
+        if (isRename) {
+          const newFull = item.category + ': ' + newName;
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'rename', row: item.row, oldName: item.rawName, newName: newFull })
+          });
+          data = await res.json();
+        } else {
+          const res = await fetch(API_URL, {
+            method: 'POST', headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify({ action: 'upsert', category: item.category, name: item.name, price: newPrice, row: item.row, rawName: item.rawName })
+          });
+          data = await res.json();
+        }
+        if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+          btn.disabled = false;
+          btn.innerText = "Save Changes";
+          return;
+        }
+        closeEditModal();
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — nothing was saved. Try again.');
+        btn.disabled = false;
+        btn.innerText = "Save Changes";
+      }
+    }
+
+    async function saveNewItem() {
+      const select = document.getElementById('adminCategorySelect');
+      let cat = select.value === '__NEW__' ? document.getElementById('newCategoryInput').value.trim() : select.value;
+      const name = document.getElementById('itemName').value.trim();
+      const price = document.getElementById('itemPrice').value.trim();
+
+      if (!name || !price || !cat) { alert("Please enter category, item name and price"); return; }
+
+      const nameLower = name.toLowerCase();
+      const sameNameElsewhere = items.find(i => i.name.toLowerCase() === nameLower && i.category.toLowerCase() !== cat.toLowerCase());
+      if (sameNameElsewhere) {
+        const goAhead = confirm(`"${name}" already exists under "${sameNameElsewhere.category}" (₹${sameNameElsewhere.price || '—'}).\n\nAdd this as a separate item under "${cat}" anyway? Tap Cancel to stop — you can edit the existing one instead.`);
+        if (!goAhead) return;
+      }
+
+      const btn = document.getElementById('saveNewBtn');
+      btn.innerText = "Saving...";
+      btn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'upsert', category: cat, name: name, price: price })
+        });
+        const data = await res.json();
+        if (data.status === 'ambiguous') {
+          alert(data.message);
+        } else if (data.status !== 'ok') {
+          alert('Save failed: ' + data.message);
+        } else {
+          document.getElementById('itemName').value = '';
+          document.getElementById('itemPrice').value = '';
+          document.getElementById('newCategoryInput').value = '';
+          await backgroundSync();
+        }
+      } catch (err) {
+        alert('Network error — item was not saved. Try again.');
+      }
+      btn.disabled = false;
+      btn.innerText = "Save to Catalog";
+    }
+
+    async function deleteItem(row) {
+      const item = itemsByRow[row];
+      if (!item) return;
+      if (!confirm(`Delete "${item.name}" from catalog?`)) return;
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST', headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'delete', row: row, rawName: item.rawName })
+        });
+        const data = await res.json();
+        if (data.status !== 'ok') { alert('Delete failed: ' + data.message); return; }
+        await backgroundSync();
+      } catch (err) {
+        alert('Network error — item was not deleted. Try again.');
+      }
+    }
+
+    window.onload = () => {
+      document.getElementById('langToggle').innerText = currentLang === 'mr' ? 'English' : 'मराठी';
+      document.getElementById('searchBar').placeholder = currentLang === 'mr' ? 'कॅटलॉग शोधा...' : 'Search catalog...';
+
+      loadFromCache();   // instant paint from last-known data, even on a slow connection
+      backgroundSync();  // then confirm/refresh from the network
+
+      setInterval(() => {
+        if (!isEditModalOpen() && document.visibilityState === 'visible') backgroundSync();
+      }, POLL_INTERVAL_MS);
+    
+      // Register Service Worker for PWA Installation
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js');
+      });
+    }
+      
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') backgroundSync();
+      });
+    };
+  </script>
+
+<div id="loginGate"><div class="gate-card">
+  <div id="gateChecking"><p>Checking sign-in…</p></div>
+  <div id="gateSignin" style="display:none">
+    <h2>Raj Traders</h2>
+    <p>Sign in with Google so your name, shop and phone reach us with every order.</p>
+    <button class="google-btn" id="googleBtn" onclick="startSignIn()">Continue with Google</button>
+    <div class="gate-err" id="gateErr"></div>
+  </div>
+</div></div>
+
+<button id="cartBar" onclick="openCart()"></button>
+
+<div class="modal" id="photoModal"><div class="modal-content">
+  <h3>Item photo</h3><div id="phName" style="font-size:.9rem;margin-bottom:10px"></div>
+  <div style="height:230px;background:var(--bg);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px"><img id="phPreview" style="max-width:100%;max-height:100%;display:none" alt=""><span id="phHint" style="color:var(--ink-soft);font-size:.85rem">No photo chosen</span></div>
+  <div class="modal-actions stack">
+    <label class="btn-cancel" style="text-align:center;cursor:pointer">Take photo<input type="file" accept="image/*" capture="environment" hidden onchange="pickPhoto(this)"></label>
+    <label class="btn-cancel" style="text-align:center;cursor:pointer">Choose from gallery<input type="file" accept="image/*" hidden onchange="pickPhoto(this)"></label>
+    <div id="phErr" class="gate-err" style="margin:0"></div>
+    <button class="btn-confirm" id="phUpload" disabled onclick="uploadPhoto()">Upload photo</button>
+    <button class="btn-cancel" onclick="closeModal('photoModal')">Close</button>
+  </div>
+</div></div>
+
+<div class="modal" id="cartModal"><div class="modal-content" id="cartBody"></div></div>
+
+<div class="modal" id="accountModal"><div class="modal-content" id="accountBody"></div></div>
+
+<div class="modal" id="profileModal"><div class="modal-content">
+  <h3>Your details</h3>
+  <p style="font-size:.85rem;color:var(--ink-soft);margin-bottom:12px">Sent to Raj Traders with every order.</p>
+  <div class="field"><label>Your name</label><input type="text" id="pfName" autocomplete="name"></div>
+  <div class="field"><label>Shop / company name</label><input type="text" id="pfCompany" autocomplete="organization"></div>
+  <div class="field"><label>Phone number</label><input type="tel" id="pfPhone" inputmode="numeric" placeholder="10-digit mobile" autocomplete="tel"></div>
+  <div class="gate-err" id="pfErr"></div>
+  <div class="modal-actions">
+    <button class="btn-cancel" id="pfCancel" onclick="closeModal('profileModal')">Cancel</button>
+    <button class="btn-confirm" onclick="saveProfileForm()">Save details</button>
+  </div>
+</div></div>
+
+<script>
+const WA_NUMBER='919422264364';
+const T=(en,mr)=>currentLang==='mr'?mr:en;
+let cart={},cartNote='';
+try{cart=JSON.parse(localStorage.getItem('raj_traders_cart')||'{}')||{}}catch(e){}
+try{const h=JSON.parse(localStorage.getItem('raj_traders_session')||'null');window.rtUser=h&&h.user||null;window.rtProfile=h&&h.profile||null}catch(e){window.rtUser=null;window.rtProfile=null}
+const ckey=it=>it.category+'||'+it.name;
+const saveCart=()=>{try{localStorage.setItem('raj_traders_cart',JSON.stringify(cart))}catch(e){}};
+const $=id=>document.getElementById(id);
+const closeModal=id=>{$(id).style.display='none'};
+const openModal=id=>{$(id).style.display='flex'};
+
+function ctlInner(q,row){
+  return q>0?`<button class="q-btn" onclick="cartChange(${row},-1)">−</button><span class="q-num">${q}</span><button class="q-btn" onclick="cartChange(${row},1)">+</button>`
+    :`<button class="add-btn" onclick="cartChange(${row},1)">+ ${T('Add','जोडा')}</button>`;
+}
+function ctlHtml(it){return `<div class="qty-ctl" data-row="${it.row}">${ctlInner(cart[ckey(it)]||0,it.row)}</div>`}
+function cartChange(row,d){
+  const it=itemsByRow[row];if(!it)return;
+  const k=ckey(it),q=Math.max(0,Math.min(999,(cart[k]||0)+d));
+  if(q)cart[k]=q;else delete cart[k];
+  saveCart();
+  document.querySelectorAll('.qty-ctl[data-row="'+row+'"]').forEach(el=>el.innerHTML=ctlInner(q,row));
+  updateCartBar();
+  if($('cartModal').style.display==='flex')renderCart();
+}
+function cartLines(){
+  const m={};items.forEach(i=>m[ckey(i)]=i);
+  const out=[];for(const k in cart){const it=m[k];if(it)out.push({it,qty:cart[k],price:parseFloat(it.price)})}
+  return out;
+}
+function cartTotal(L){return Math.round(L.reduce((s,l)=>s+(isNaN(l.price)?0:l.price*l.qty),0)*100)/100}
+function updateCartBar(){
+  const L=cartLines(),n=L.reduce((s,l)=>s+l.qty,0),tot=cartTotal(L),bar=$('cartBar');
+  bar.style.display=(n&&window.rtUser)?'flex':'none';
+  bar.textContent=`${T('View order','ऑर्डर पहा')} · ${n} ${T('items','वस्तू')}${tot?' · ₹'+tot:''}`;
+}
+function openCart(){
+  if(!window.rtProfile){openProfile(true);return}
+  renderCart();openModal('cartModal');
+}
+function renderCart(){
+  const L=cartLines(),p=window.rtProfile||{};
+  const lines=L.length?L.map(l=>{
+    const nm=currentLang==='mr'?l.it._marathiName:l.it.name,r=l.it.row;
+    const sub=isNaN(l.price)?T('Price on request','किंमत विचारा'):`₹${l.price} × ${l.qty} = ₹${Math.round(l.price*l.qty*100)/100}`;
+    return `<div class="cart-line"><div style="flex:1;min-width:0"><div style="font-weight:600;font-size:.95rem">${sanitizeHTML(nm)}</div><div style="font-size:.78rem;color:var(--ink-soft)">${sanitizeHTML(sub)}</div></div><div class="qty-ctl"><button class="q-btn" onclick="cartChange(${r},-1)">−</button><span class="q-num">${l.qty}</span><button class="q-btn" onclick="cartChange(${r},1)">+</button></div></div>`;
+  }).join(''):`<div style="padding:20px;text-align:center;color:var(--ink-soft)">${T('Your order is empty','ऑर्डर रिकामी आहे')}</div>`;
+  $('cartBody').innerHTML=`<h3>${T('Your order','तुमची ऑर्डर')}</h3>${lines}
+  <div style="display:flex;justify-content:space-between;font-weight:600;margin:12px 0"><span>${T('Total (approx.)','एकूण (अंदाजे)')}</span><span>₹${cartTotal(L)}</span></div>
+  <div class="field"><textarea id="cartNote" rows="2" placeholder="${T('Note for the shop (optional)','दुकानासाठी सूचना (ऐच्छिक)')}" oninput="cartNote=this.value">${sanitizeHTML(cartNote)}</textarea></div>
+  <div style="font-size:.8rem;color:var(--ink-soft);margin-bottom:12px">${sanitizeHTML(p.name||'')} · ${sanitizeHTML(p.company||'')} · +91 ${sanitizeHTML(p.phone||'')} <a href="#" onclick="openProfile(false);return false" style="color:var(--accent)">${T('Edit','बदला')}</a></div>
+  <div class="modal-actions stack">
+    <button class="btn-confirm" id="sendBtn" ${L.length?'':'disabled'} onclick="sendOrder()">${T('Send order on WhatsApp','WhatsApp वर ऑर्डर पाठवा')}</button>
+    <div style="display:flex;gap:10px"><button class="btn-cancel" onclick="clearCart()">${T('Clear','रिकामी करा')}</button><button class="btn-cancel" onclick="closeModal('cartModal')">${T('Close','बंद करा')}</button></div>
+  </div>`;
+}
+function clearCart(){
+  if(!confirm(T('Remove all items from this order?','सर्व वस्तू काढायच्या?')))return;
+  cart={};cartNote='';saveCart();displayItems();updateCartBar();renderCart();
+}
+let pendingOrder=null;
+async function sendOrder(){
+  const p=window.rtProfile,L=cartLines();
+  if(!p){openProfile(true);return}
+  if(!L.length)return;
+  const sig=JSON.stringify(L.map(l=>[ckey(l.it),l.qty]))+'|'+cartNote;
+  if(!pendingOrder||pendingOrder.sig!==sig||Date.now()-pendingOrder.t>600000)
+    pendingOrder={sig,t:Date.now(),saved:false,id:'RT-'+Date.now().toString(36).toUpperCase()+Math.random().toString(36).slice(2,4).toUpperCase()};
+  const id=pendingOrder.id,total=cartTotal(L),btn=$('sendBtn');
+  if(btn){btn.disabled=true;btn.textContent=T('Saving order…','ऑर्डर सेव्ह होत आहे…')}
+  let saved='local';
+  try{
+    if(window.rtSaveOrder){
+      const r=await Promise.race([window.rtSaveOrder({id,customer:p,total,note:cartNote.trim(),items:L.map(l=>({name:l.it.name,category:l.it.category,brand:l.it.brand||'',qty:l.qty,price:isNaN(l.price)?null:l.price}))}),new Promise(res=>setTimeout(()=>res('slow'),3000))]);
+      if(r==='slow')saved='queued';else{saved='server';pendingOrder.saved=true}
+    }
+  }catch(e){saved=(e&&e.code==='permission-denied'&&pendingOrder.saved)?'server':'local'}
+  const rows=L.map((l,i)=>`${i+1}. ${l.it.name} (${l.it.category}) × ${l.qty}`+(isNaN(l.price)?' — price TBC':` @ ₹${l.price} = ₹${Math.round(l.price*l.qty*100)/100}`));
+  let msg=`*New Order — Raj Traders*\n*Order ID:* ${id}\n\n*Customer:* ${p.name}\n*Shop / Company:* ${p.company}\n*Phone:* +91 ${p.phone}\n`+(p.email?`*Email:* ${p.email}\n`:'')+`*Date:* ${new Date().toLocaleString('en-IN')}\n\n*Items:*\n${rows.join('\n')}\n\n*Total (approx.):* ₹${total}`;
+  if(cartNote.trim())msg+=`\n\n*Note:* ${cartNote.trim()}`;
+  window.cartInfo=saved==='server'?`Order ${id} saved. Opening WhatsApp. If it does not open, tap send again — it stays one order.`
+    :saved==='queued'?`Order ${id} is waiting for internet and will upload by itself. Opening WhatsApp.`
+    :`Order ${id} could not be saved online. WhatsApp is still opening — quote this ID to the shop.`;
+  renderCart();
+  window.location.href='https://wa.me/'+WA_NUMBER+'?text='+encodeURIComponent(msg);
+}
+
+function openProfile(required){
+  closeModal('accountModal');
+  const p=window.rtProfile||{},u=window.rtUser||{};
+  $('pfName').value=p.name||u.name||'';$('pfCompany').value=p.company||'';$('pfPhone').value=p.phone||'';
+  $('pfErr').textContent='';$('pfCancel').style.display=required?'none':'';
+  openModal('profileModal');
+}
+async function saveProfileForm(){
+  const name=$('pfName').value.trim(),company=$('pfCompany').value.trim();
+  let ph=$('pfPhone').value.replace(/\D/g,'');
+  if(ph.length>10&&ph.startsWith('91'))ph=ph.slice(2);
+  if(ph.length===11&&ph.startsWith('0'))ph=ph.slice(1);
+  const err=m=>{$('pfErr').textContent=m};
+  if(name.length<2)return err('Enter your name.');
+  if(company.length<2)return err('Enter your shop or company name.');
+  if(!/^[6-9]\d{9}$/.test(ph))return err('Enter a valid 10-digit mobile number.');
+  const p={name,company,phone:ph,email:(window.rtUser||{}).email||''};
+  window.rtProfile=p;
+  try{if(window.rtSaveProfile)await window.rtSaveProfile(p)}catch(e){console.warn('Cloud save failed, saved on this phone only',e)}
+  rtAuthChanged();closeModal('profileModal');
+  if($('cartModal').style.display==='flex')renderCart();
+}
+
+function openAccount(){
+  const u=window.rtUser;if(!u){gateState('signin');return}
+  const p=window.rtProfile||{},dark=document.documentElement.getAttribute('data-theme')==='dark';
+  $('accountBody').innerHTML=`<h3>Account</h3>
+  <div style="font-size:.95rem;line-height:1.6;margin-bottom:6px"><b>${sanitizeHTML(p.name||u.name)}</b><br>${sanitizeHTML(p.company||'')}<br>${p.phone?'+91 '+sanitizeHTML(p.phone)+'<br>':''}<span style="color:var(--ink-soft);font-size:.82rem">${sanitizeHTML(u.email)}</span></div>
+  <div class="modal-actions stack">
+    <button class="btn-cancel" onclick="openProfile(false)">Edit details</button>
+    <button class="btn-cancel" onclick="toggleTheme()">${dark?'Dark mode: on — switch to light':'Light mode: on — switch to dark'}</button>
+    <button class="btn-cancel" onclick="doSignOut()">Sign out</button>
+    <button class="btn-confirm" onclick="closeModal('accountModal')">Close</button>
+  </div>`;
+  openModal('accountModal');
+}
+function toggleTheme(){
+  const n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',n);
+  try{localStorage.setItem('raj_traders_theme',n)}catch(e){}
+  openAccount();
+}
+function doSignOut(){
+  cart={};cartNote='';saveCart();
+  window.rtUser=null;window.rtProfile=null;
+  if(window.rtSignOut)window.rtSignOut().catch(()=>{});
+  closeModal('accountModal');rtAuthChanged();displayItems();
+}
+
+function gateState(s){
+  const h=document.documentElement;
+  if(s==='hide'){h.classList.add('session');return}
+  h.classList.remove('session');
+  $('gateChecking').style.display=s==='checking'?'block':'none';
+  $('gateSignin').style.display=s==='signin'?'block':'none';
+}
+function gateMsg(m){gateState('signin');$('gateErr').textContent=m;const b=$('googleBtn');b.disabled=false;b.textContent='Continue with Google'}
+async function startSignIn(){
+  $('gateErr').textContent='';
+  if(!window.rtSignIn){gateMsg('Sign-in is still loading. Check your internet and try again.');return}
+  const b=$('googleBtn');b.disabled=true;b.textContent='Signing in…';
+  await window.rtSignIn();
+  b.disabled=false;b.textContent='Continue with Google';
+}
+function rtAuthChanged(){
+  const u=window.rtUser;
+  window.rtResolved=true;
+  if(!u){
+    try{localStorage.removeItem('raj_traders_session')}catch(e){}
+    ['profileModal','cartModal','accountModal'].forEach(closeModal);
+    gateState('signin');
+  }else{
+    try{localStorage.setItem('raj_traders_session',JSON.stringify({user:u,profile:window.rtProfile||null}))}catch(e){}
+    gateState('hide');
+    if(!window.rtProfile)openProfile(true);
+  }
+  $('accountBtn').textContent=u?((u.name||u.email||'?')[0]||'?').toUpperCase():'?';
+  updateCartBar();
+}
+
+const _applyRaw=applyRawData;
+applyRawData=function(r){const s=JSON.stringify(r);if(s===window._lastRaw&&items.length)return;window._lastRaw=s;_applyRaw(r);buildBrands();updateCartBar()};
+const _toggleLang=toggleLanguage;
+toggleLanguage=function(){_toggleLang();updateCartBar();if($('cartModal').style.display==='flex')renderCart()};
+
+if(!window.rtUser)gateState('checking');
+else{$('accountBtn').textContent=((window.rtUser.name||window.rtUser.email||'?')[0]||'?').toUpperCase();if(!window.rtProfile)openProfile(true)}
+setTimeout(()=>{if(!window.rtResolved&&!window.rtUser)gateState('signin')},10000);
+
+let renderLimit=60,currentBrand='All',phRow=null,phData=null;
+const _bb=document.createElement('div');_bb.className='category-scroll';_bb.id='brandBar';_bb.style.display='none';$('categoryBar').after(_bb);
+const _norm=normalizeRawItem;
+normalizeRawItem=function(raw){const o=_norm(raw);if(o)o.brand=(raw['Brand']||raw['brand']||raw['Company']||raw['company']||'').toString().trim();return o};
+function buildBrands(){
+  const set=new Set(items.map(i=>i.brand).filter(Boolean)),bar=$('brandBar');
+  if(!set.size){bar.style.display='none';currentBrand='All';return}
+  if(currentBrand!=='All'&&!set.has(currentBrand))currentBrand='All';
+  bar.style.display='flex';
+  bar.innerHTML=['All',...[...set].sort()].map(b=>`<button class="cat-btn ${b===currentBrand?'active':''}" data-b="${sanitizeHTML(b)}" onclick="setBrand(this.dataset.b)">${b==='All'?T('All brands','सर्व कंपन्या'):sanitizeHTML(b)}</button>`).join('');
+}
+function setBrand(b){currentBrand=b;renderLimit=60;buildBrands();displayItems()}
+const _setCat=setCategory;setCategory=function(c){renderLimit=60;_setCat(c)};
+$('searchBar').addEventListener('input',()=>{renderLimit=60});
+
+function openPhoto(row){
+  const it=itemsByRow[row];if(!it)return;
+  phRow=row;phData=null;$('phName').textContent=it.name;
+  $('phPreview').style.display='none';$('phHint').style.display='';$('phErr').textContent='';
+  const b=$('phUpload');b.disabled=true;b.textContent='Upload photo';openModal('photoModal');
+}
+function pickPhoto(inp){
+  const f=inp.files&&inp.files[0];inp.value='';if(!f)return;
+  const img=new Image(),url=URL.createObjectURL(f);
+  img.onload=()=>{
+    const s=Math.min(1,900/Math.max(img.width,img.height)),c=document.createElement('canvas');
+    c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    phData=c.toDataURL('image/jpeg',0.75);URL.revokeObjectURL(url);
+    $('phPreview').src=phData;$('phPreview').style.display='block';$('phHint').style.display='none';
+    const b=$('phUpload');b.disabled=false;b.textContent='Upload photo ('+Math.round(phData.length*0.75/1024)+' KB)';
+  };
+  img.onerror=()=>{$('phErr').textContent='Could not read this photo. Try another.'};
+  img.src=url;
+}
+async function uploadPhoto(){
+  const it=itemsByRow[phRow];if(!it||!phData)return;
+  const b=$('phUpload');b.disabled=true;b.textContent='Uploading…';$('phErr').textContent='';
+  try{
+    const res=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'photo',row:it.row,rawName:it.rawName,name:it.name,mime:'image/jpeg',data:phData.split(',')[1]})});
+    const d=await res.json();
+    if(d.status!=='ok'){$('phErr').textContent='Upload failed: '+(d.message||'unknown error');b.disabled=false;b.textContent='Try again';return}
+    closeModal('photoModal');await backgroundSync();
+  }catch(e){$('phErr').textContent='No internet — photo not uploaded. Try again.';b.disabled=false;b.textContent='Try again'}
+}
+
+const _cc=cartChange;cartChange=function(r,d){window.cartInfo='';_cc(r,d)};
+const _rc=renderCart;
+renderCart=function(){_rc();if(window.cartInfo)$('cartBody').insertAdjacentHTML('afterbegin',`<div style="background:var(--accent-soft);border-left:3px solid var(--accent);padding:8px 10px;border-radius:4px;font-size:.82rem;margin-bottom:10px">${sanitizeHTML(window.cartInfo)}</div>`)};
+
+(function(){
+  const s=$('syncStatus'),M={'🟢':['Live','ok'],'🔄':['Syncing','busy'],'🟡':['Offline','off']};
+  new MutationObserver(()=>{const k=s.textContent.trim();if(M[k]){s.textContent=M[k][0];s.className='live '+M[k][1]}}).observe(s,{childList:true,characterData:true,subtree:true});
+  s.textContent='🔄';
+})();
+</script>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+import {initializeFirestore,persistentLocalCache,doc,getDoc,setDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+const app=initializeApp({
+  apiKey:"AIzaSyBVSMzGFbbSMzNcyD1IAVc-z4vzWBsPOTE",
+  authDomain:"price-list-88d33.firebaseapp.com",
+  projectId:"price-list-88d33",
+  storageBucket:"price-list-88d33.firebasestorage.app",
+  messagingSenderId:"135322631733",
+  appId:"1:135322631733:web:8c82e337c04f714eaa3b7c"
+});
+const auth=getAuth(app),db=initializeFirestore(app,{localCache:persistentLocalCache()});
+const ERR={
+  'auth/unauthorized-domain':'This website address is not authorised in Firebase yet (Authentication → Settings → Authorized domains).',
+  'auth/popup-blocked':'Your browser blocked the sign-in window. Allow pop-ups and try again.',
+  'auth/network-request-failed':'No internet. Try again.',
+  'auth/operation-not-allowed':'Google sign-in is not switched on in Firebase yet.'
+};
+window.rtSignIn=async()=>{
+  try{await signInWithPopup(auth,new GoogleAuthProvider())}
+  catch(e){
+    if(e.code==='auth/popup-closed-by-user'||e.code==='auth/cancelled-popup-request')return;
+    gateMsg(ERR[e.code]||('Sign-in failed ('+(e.code||'error')+'). Try again.'));
+  }
+};
+window.rtSignOut=()=>signOut(auth);
+window.rtSaveOrder=async o=>{
+  const u=auth.currentUser;if(!u)throw new Error('not signed in');
+  await setDoc(doc(db,'orders',o.id),{...o,uid:u.uid,status:'new',createdAt:serverTimestamp()});
+  return 'ok';
+};
+window.rtSaveProfile=async p=>{
+  const u=auth.currentUser;if(!u)return;
+  await setDoc(doc(db,'users',u.uid),{...p,updatedAt:serverTimestamp()},{merge:true});
+};
+onAuthStateChanged(auth,async u=>{
+  if(!u){window.rtUser=null;window.rtProfile=null;rtAuthChanged();return}
+  window.rtUser={uid:u.uid,name:u.displayName||'',email:u.email||''};
+  let p=null;
+  try{const h=JSON.parse(localStorage.getItem('raj_traders_session')||'null');if(h&&h.user&&h.user.uid===u.uid)p=h.profile}catch(e){}
+  if(!p){
+    try{const s=await getDoc(doc(db,'users',u.uid));if(s.exists()){const d=s.data();p={name:d.name,company:d.company,phone:d.phone,email:d.email}}}
+    catch(e){console.warn('Profile fetch failed',e)}
+  }
+  window.rtProfile=(p&&p.name&&p.company&&p.phone)?p:null;
+  rtAuthChanged();
+});
+</script>
+</body>
+</html>
