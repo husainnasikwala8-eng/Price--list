@@ -1,0 +1,33 @@
+{
+  "name": "Raj Traders — राज ट्रेडर्स",
+  "short_name": "Raj Traders",
+  "description": "Hardware Ghar · Wholesale rates —Devi Chowk, Near Asha Restaurant, Nashik",
+  "lang": "en-IN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#C8161D",
+  "background_color": "#F7F5F1",
+  "categories": ["shopping", "business"],
+  "icons": [
+    {
+      "src": "image.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "image.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
